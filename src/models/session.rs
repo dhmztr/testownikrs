@@ -134,8 +134,13 @@ impl QuizSession {
             
             let is_now_inactive = q.repetitions_remaining == 0;
             // Question became inactive if it was active before and is inactive now
-            // AND it's the current question
-            was_active && is_now_inactive && question_tag == current_question_tag.as_deref().unwrap_or("")
+            // AND it's the current question being updated
+            let is_current_question = current_question_tag
+                .as_ref()
+                .map(|tag| tag.as_str() == question_tag)
+                .unwrap_or(false);
+            
+            was_active && is_now_inactive && is_current_question
         } else {
             false
         };

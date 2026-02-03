@@ -136,7 +136,6 @@ mod next_question_tests {
         // Move to next - should show Q3 (not Q1)
         session.next_question();
         let current = session.current_question().unwrap();
-        println!("After mastering Q2 and calling next_question, current question is: {}", current.question.tag);
         
         // This is the key test: after mastering the middle question,
         // next_question should show Q3, not wrap back to Q1
