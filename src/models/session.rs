@@ -37,11 +37,7 @@ impl QuizSession {
             .unwrap_or("Unknown Quiz")
             .to_string();
 
-        let id = format!(
-            "{}_{}", 
-            quiz_name.replace(' ', "_"), 
-            Utc::now().timestamp()
-        );
+        let id = format!("{}_{}", quiz_name.replace(' ', "_"), Utc::now().timestamp());
 
         let now = Utc::now();
 
@@ -83,15 +79,22 @@ impl QuizSession {
 
     /// Move to the next question
     pub fn next_question(&mut self) {
-        if self.current_index + 1 < self.active_count() {
-            self.current_index += 1;
+        let active = self.active_count();
+        if active == 0 {
+            return;
+        } else {
+            self.current_index = (self.current_index + 1) % active;
+            self.updated_at = Utc::now();
         }
-        self.updated_at = Utc::now();
     }
 
     /// Update the repetitions for a question based on the answer
     pub fn update_question(&mut self, question_tag: &str, is_correct: bool) {
-        if let Some(q) = self.questions.iter_mut().find(|q| q.question.tag == question_tag) {
+        if let Some(q) = self
+            .questions
+            .iter_mut()
+            .find(|q| q.question.tag == question_tag)
+        {
             if is_correct {
                 q.record_correct(self.settings.correct_decrease);
             } else {
@@ -109,15 +112,18 @@ impl QuizSession {
         if self.questions.is_empty() {
             return 100.0;
         }
-        
-        let total_initial_reps: i32 = self.questions.len() as i32 * self.settings.initial_repetitions;
+
+        let total_initial_reps: i32 =
+            self.questions.len() as i32 * self.settings.initial_repetitions;
         let remaining_reps: i32 = self.questions.iter().map(|q| q.repetitions_remaining).sum();
-        
+
         if total_initial_reps == 0 {
             return 100.0;
         }
-        
-        ((total_initial_reps - remaining_reps) as f32 / total_initial_reps as f32 * 100.0).max(0.0).min(100.0)
+
+        ((total_initial_reps - remaining_reps) as f32 / total_initial_reps as f32 * 100.0)
+            .max(0.0)
+            .min(100.0)
     }
 }
 
