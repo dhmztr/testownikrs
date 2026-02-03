@@ -1,0 +1,31 @@
+X1010
+Treść pytania 1?
+Odpowiedź A
+Odpowiedź B (prawidłowa)
+Odpowiedź C (prawidłowa)
+Odpowiedź D
+##
+Y123
+Treść pytania 2 z {wybór 1} i {wybór 2}
+opcja1;;opcja2;;opcja3
+wybórA;;wybórB;;wybórC
+##
+X0100
+[img]obrazek.png[/img]
+Odpowiedź 1
+Odpowiedź 2 (prawidłowa)
+Odpowiedź 3
+Odpowiedź 4
+##
+X1000
+Jakie jest najlepsze narzędzie do programowania w Rust?
+Cargo
+Visual Studio
+Notepad
+Python
+##
+Y231
+Dopasuj {wybór 1} do {wybór 2} i {wybór 3}
+wartość1;;wartość2;;wartość3
+opcjaA;;opcjaB;;opcjaC
+test1;;test2;;test3;;test4
