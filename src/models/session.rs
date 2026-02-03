@@ -23,6 +23,9 @@ pub struct QuizSession {
     pub created_at: DateTime<Utc>,
     /// When this session was last updated
     pub updated_at: DateTime<Utc>,
+    /// Transient flag: true if the current question was just mastered (not serialized)
+    #[serde(skip, default)]
+    pub current_question_just_mastered: bool,
 }
 
 impl QuizSession {
@@ -50,6 +53,7 @@ impl QuizSession {
             settings,
             created_at: now,
             updated_at: now,
+            current_question_just_mastered: false,
         }
     }
 
@@ -79,22 +83,46 @@ impl QuizSession {
 
     /// Move to the next question
     pub fn next_question(&mut self) {
-        let active = self.active_count();
-        if active == 0 {
-            return;
-        } else {
-            self.current_index = (self.current_index + 1) % active;
+        let active_questions = self.active_questions();
+        let active_count = active_questions.len();
+        
+        if active_count == 0 {
+            self.current_index = 0;
+            self.current_question_just_mastered = false;
             self.updated_at = Utc::now();
+            return;
         }
+        
+        // If the current question was just mastered, it was removed from the active list.
+        // The next question has slid into the current_index position, so we don't need to increment.
+        if self.current_question_just_mastered {
+            // Clear the flag
+            self.current_question_just_mastered = false;
+            // Just clamp current_index to valid range (in case it's now out of bounds)
+            if self.current_index >= active_count {
+                self.current_index = 0;
+            }
+        } else {
+            // Normal case: move to the next question
+            self.current_index = (self.current_index + 1) % active_count;
+        }
+        
+        self.updated_at = Utc::now();
     }
 
     /// Update the repetitions for a question based on the answer
     pub fn update_question(&mut self, question_tag: &str, is_correct: bool) {
-        if let Some(q) = self
+        // Get the current question's tag before updating
+        let current_question_tag = self.current_question().map(|q| q.question.tag.clone());
+        
+        // Find and update the question
+        self.current_question_just_mastered = if let Some(q) = self
             .questions
             .iter_mut()
             .find(|q| q.question.tag == question_tag)
         {
+            let was_active = q.repetitions_remaining > 0;
+            
             if is_correct {
                 q.record_correct(self.settings.correct_decrease);
             } else {
@@ -103,7 +131,15 @@ impl QuizSession {
                     self.settings.max_repetitions,
                 );
             }
-        }
+            
+            let is_now_inactive = q.repetitions_remaining == 0;
+            // Question became inactive if it was active before and is inactive now
+            // AND it's the current question
+            was_active && is_now_inactive && question_tag == current_question_tag.as_deref().unwrap_or("")
+        } else {
+            false
+        };
+        
         self.updated_at = Utc::now();
     }
 
