@@ -3,6 +3,7 @@ use testownik_rs::models::{AppSettings, Theme};
 use testownik_rs::types::QuestionType;
 use testownik_rs::persistence::Storage;
 use iced::{window, Application, Command, Element, Font, Settings as IcedSettings, Size};
+use std::path::PathBuf;
 use iced::keyboard;
 use iced::event::{self, Event};
 use iced::subscription::Subscription;
@@ -142,7 +143,11 @@ impl Application for TestownikApp {
             
             Message::LoadSession(session_id) => {
                 if let Ok(session) = self.storage.load_session(&session_id) {
-                    self.screen = Screen::Quiz(QuizState::new(session));
+                    let image_base_dir = session.quiz_path
+                        .parent()
+                        .map(|p| p.to_path_buf())
+                        .unwrap_or_else(|| PathBuf::from("."));
+                    self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
                 }
                 Command::none()
             }
@@ -333,7 +338,11 @@ impl TestownikApp {
             let _ = self.storage.save_session(&session);
 
             // Switch to quiz screen
-            self.screen = Screen::Quiz(QuizState::new(session));
+            let image_base_dir = PathBuf::from(path)
+                .parent()
+                .map(|p| p.to_path_buf())
+                .unwrap_or_else(|| PathBuf::from("."));
+            self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
         }
     }
 }

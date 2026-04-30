@@ -6,11 +6,14 @@ use crate::gui::styles::{
 };
 use crate::gui::Message;
 use testownik_rs::models::{AppSettings, QuestionType, QuizSession, SessionQuestion, Theme};
-use testownik_rs::types::{AnswerContent, ContentPart, QuestionContent};
+use testownik_rs::types::{AnswerContent, AnswerType, ContentPart, QuestionContent};
 use testownik_rs::utils;
-use iced::widget::{button, column, container, horizontal_space, pick_list, row, scrollable, text, vertical_space, Column, Space};
-use iced::{Alignment, Element, Length};
+use iced::widget::{button, column, container, horizontal_space, image as img_widget, pick_list, row, scrollable, text, vertical_space, Column, Space};
+use iced::{Alignment, Font, Element, Length};
 use iced::theme::{Button as ButtonTheme};
+use std::path::{Path, PathBuf};
+
+const EMOJI_FONT: Font = Font::with_name("Segoe UI Emoji");
 
 /// Default option index for unselected dropdowns in Select-type questions
 const DEFAULT_OPTION_INDEX: usize = 0;
@@ -23,10 +26,11 @@ pub struct QuizState {
     pub answer_submitted: bool,
     pub is_correct: Option<bool>,
     pub randomized_answer_indices: Vec<usize>,
+    pub image_base_dir: PathBuf,
 }
 
 impl QuizState {
-    pub fn new(session: QuizSession) -> Self {
+    pub fn new(session: QuizSession, image_base_dir: PathBuf) -> Self {
         // Randomize answer order for the first question
         let answer_count = session
             .current_question()
@@ -41,6 +45,7 @@ impl QuizState {
             answer_submitted: false,
             is_correct: None,
             randomized_answer_indices: randomized_indices,
+            image_base_dir,
         }
     }
 
@@ -141,7 +146,7 @@ impl QuizState {
         let Some(current_q) = self.session.current_question() else {
             return container(
                 column![
-                    text("📭").size(48),
+                    text("📭").font(EMOJI_FONT).size(48),
                     vertical_space().height(12),
                     text("Brak dostępnych pytań").size(20)
                         .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
@@ -216,7 +221,7 @@ impl QuizState {
 
         // Repetitions badge - shows how many times THIS question still needs to be answered
         let reps_badge = container(
-            text(format!("🔄 {} powt. dla tego pytania", current_q.repetitions_remaining)).size(12)
+            text(format!("🔄 {} powt. dla tego pytania", current_q.repetitions_remaining)).font(EMOJI_FONT).size(12)
         )
         .padding([4, 10])
         .style(badge_style(is_dark));
@@ -257,9 +262,32 @@ impl QuizState {
     }
 
     fn create_question_card(&self, current_q: &SessionQuestion, is_dark: bool) -> Element<'_, Message> {
-        let question_text = match &current_q.question.content {
-            QuestionContent::Text(t) => t.clone(),
-            QuestionContent::Image(path) => format!("📷 Image: {}", path),
+        let question_body: Element<'_, Message> = match &current_q.question.content {
+            QuestionContent::Text(t) => {
+                // Text may contain embedded [img]...[/img] tags appended by the parser
+                let mut col = Column::new().spacing(8);
+                for line in t.split('\n') {
+                    if line.starts_with("[img]") && line.ends_with("[/img]") {
+                        let path = &line["[img]".len()..line.len() - "[/img]".len()];
+                        col = col.push(
+                            img_widget(resolve_image_path(&self.image_base_dir, path))
+                                .width(Length::Fill),
+                        );
+                    } else if !line.is_empty() {
+                        col = col.push(
+                            text(line)
+                                .size(20)
+                                .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
+                        );
+                    }
+                }
+                col.into()
+            }
+            QuestionContent::Image(path) => {
+                img_widget(resolve_image_path(&self.image_base_dir, path))
+                    .width(Length::Fill)
+                    .into()
+            }
             QuestionContent::Select(parts) => {
                 let mut content = String::new();
                 for part in parts {
@@ -277,20 +305,19 @@ impl QuizState {
                         }
                     }
                 }
-                content
+                text(content)
+                    .size(20)
+                    .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT })
+                    .into()
             }
         };
-
-        let styled_question = text(&question_text)
-            .size(20)
-            .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT });
 
         container(
             container(
                 column![
-                    text("❓").size(28),
+                    text("❓").font(EMOJI_FONT).size(28),
                     vertical_space().height(12),
-                    styled_question,
+                    question_body,
                 ]
             )
             .padding([24, 28])
@@ -313,7 +340,7 @@ impl QuizState {
             let inner_container = if is_correct {
                 container(
                     row![
-                        text(icon).size(24),
+                        text(icon).font(EMOJI_FONT).size(24),
                         horizontal_space().width(12),
                         text(message).size(16),
                     ]
@@ -325,7 +352,7 @@ impl QuizState {
             } else {
                 container(
                     row![
-                        text(icon).size(24),
+                        text(icon).font(EMOJI_FONT).size(24),
                         horizontal_space().width(12),
                         text(message).size(16),
                     ]
@@ -371,11 +398,22 @@ impl QuizState {
                         .padding([6, 10])
                         .style(letter_badge_style(is_dark, is_selected));
 
+                        let answer_content: Element<'_, Message> = match answer.answer_type {
+                            AnswerType::Image => img_widget(
+                                resolve_image_path(&self.image_base_dir, &answer_text)
+                            )
+                            .width(Length::Fixed(200.0))
+                            .into(),
+                            AnswerType::Text => text(&answer_text)
+                                .size(16)
+                                .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT })
+                                .into(),
+                        };
+
                         let answer_row = row![
                             letter_container,
                             horizontal_space().width(14),
-                            text(&answer_text).size(16)
-                                .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
+                            answer_content,
                         ]
                         .align_items(Alignment::Center);
 
@@ -512,7 +550,7 @@ impl QuizState {
 
         let exit_btn = button(
             row![
-                text("💾").size(14),
+                text("💾").font(EMOJI_FONT).size(14),
                 horizontal_space().width(8),
                 text("Zapisz i Wyjdź").size(14),
             ]
@@ -523,7 +561,7 @@ impl QuizState {
         .style(ButtonTheme::Secondary);
         
         // Keyboard shortcuts help text
-        let shortcuts_text = text("⌨️ 1-9: Wybierz • Spacja: Zatwierdź/Dalej")
+        let shortcuts_text = text("⌨️ 1-9: Wybierz • Spacja: Zatwierdź/Dalej").font(EMOJI_FONT)
             .size(12)
             .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
 
@@ -549,7 +587,7 @@ impl QuizState {
     fn view_completion(&self, is_dark: bool) -> Element<'_, Message> {
         let completion_card = container(
             column![
-                text("🎉").size(64),
+                text("🎉").font(EMOJI_FONT).size(64),
                 vertical_space().height(20),
                 text("Quiz Ukończony!")
                     .size(32)
@@ -564,7 +602,7 @@ impl QuizState {
                 vertical_space().height(24),
                 container(
                     column![
-                        text("📚").size(24),
+                        text("📚").font(EMOJI_FONT).size(24),
                         text(format!("{}", self.session.questions.len())).size(28)
                             .style(Colors::PRIMARY),
                         text("Pytań").size(12)
@@ -577,7 +615,7 @@ impl QuizState {
                 vertical_space().height(24),
                 button(
                     row![
-                        text("🏠").size(16),
+                        text("🏠").font(EMOJI_FONT).size(16),
                         horizontal_space().width(10),
                         text("Powrót do Menu").size(16),
                     ]
@@ -601,4 +639,24 @@ impl QuizState {
             .style(background_style(is_dark))
             .into()
     }
+}
+
+/// Resolves an image filename to a full path.
+/// Tries `base_dir/filename` first; if not found, searches one level of subdirectories.
+fn resolve_image_path(base_dir: &Path, filename: &str) -> PathBuf {
+    let direct = base_dir.join(filename);
+    if direct.exists() {
+        return direct;
+    }
+    if let Ok(entries) = std::fs::read_dir(base_dir) {
+        for entry in entries.flatten() {
+            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                let candidate = entry.path().join(filename);
+                if candidate.exists() {
+                    return candidate;
+                }
+            }
+        }
+    }
+    direct
 }

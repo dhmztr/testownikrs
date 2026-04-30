@@ -2,8 +2,10 @@ use crate::gui::Message;
 use crate::gui::styles::{surface_style, background_style, Colors};
 use testownik_rs::models::{AppSettings, QuizSession, Theme};
 use iced::widget::{button, column, container, text, vertical_space};
-use iced::{Alignment, Element, Length};
+use iced::{Alignment, Font, Element, Length};
 use iced::theme::Button as ButtonTheme;
+
+const EMOJI_FONT: Font = Font::with_name("Segoe UI Emoji");
 
 #[derive(Debug, Clone)]
 pub struct CompletionState {
@@ -39,7 +41,7 @@ impl CompletionState {
 
         let content = column![
             vertical_space().height(60),
-            text("🎉 Quiz Ukończony!").size(32),
+            text("🎉 Quiz Ukończony!").font(EMOJI_FONT).size(32),
             vertical_space().height(32),
             container(
                 column![
