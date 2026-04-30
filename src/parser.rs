@@ -276,6 +276,7 @@ pub fn parse_question_block(text: &str, tag: String) -> Result<Question> {
 }
 
 /// Parsuje pytanie typu X (single/multiple choice)
+/// Parsuje pytanie typu X (single/multiple choice)
 pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
     if lines.len() < 3 {
         anyhow::bail!("Za mało linii dla pytania typu X");
@@ -291,25 +292,53 @@ pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
         .map(|(i, _)| i)
         .collect();
 
-    let question_line = lines[1].trim();
-    let (content_type, content) = if question_line.starts_with("[img]") {
+    // 1. Zaczynamy od bazowej treści pytania
+    let mut question_text = lines[1].trim().to_string();
+
+    // 2. Pobieramy wszystkie linie poniżej pytania
+    let raw_answers: Vec<&str> = lines[2..]
+        .iter()
+        .map(|line| line.trim())
+        .filter(|line| !line.is_empty())
+        .collect();
+
+    // 3. Oddzielamy obrazki pytania od rzeczywistych odpowiedzi
+    let mut final_answers = Vec::new();
+    let all_answers_are_images = raw_answers.iter().all(|a| a.starts_with("[img]"));
+
+    if !all_answers_are_images {
+        for line in raw_answers {
+            // Jeśli linia to czysty tag [img], doklejamy go do treści pytania
+            if line.starts_with("[img]") && line.ends_with("[/img]") {
+                question_text.push('\n');
+                question_text.push_str(line);
+            } else {
+                final_answers.push(line);
+            }
+        }
+    } else {
+        // Jeśli wszystkie odpowiedzi to obrazki, nie modyfikujemy ich
+        final_answers = raw_answers;
+    }
+
+    // 4. Określamy ostateczny typ i zawartość pytania
+    let (content_type, content) = if question_text.starts_with("[img]") && !question_text.contains('\n') {
         (
             ContentType::Image,
-            QuestionContent::Image(extract_image_link(question_line)?),
+            QuestionContent::Image(extract_image_link(&question_text)?),
         )
     } else {
         (
             ContentType::Text,
-            QuestionContent::Text(question_line.to_string()),
+            QuestionContent::Text(question_text),
         )
     };
 
-    let answers: Vec<Answer> = lines[2..]
-        .iter()
-        .filter(|line| !line.trim().is_empty())
+    // 5. Parsujemy właściwe odpowiedzi
+    let answers: Vec<Answer> = final_answers
+        .into_iter()
         .enumerate()
         .map(|(index, line)| {
-            let line = line.trim();
             let (answer_type, content) = if line.starts_with("[img]") {
                 (
                     AnswerType::Image,
@@ -323,6 +352,7 @@ pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
                 id: index,
                 answer_type,
                 content: AnswerContent::Single { content },
+                // Sprawdzamy is_correct bazując na nowym (przefiltrowanym) indeksie
                 is_correct: Some(correct_indices.contains(&index)),
                 correct_option_id: None,
                 options: None,
