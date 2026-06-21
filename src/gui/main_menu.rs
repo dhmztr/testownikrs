@@ -400,7 +400,7 @@ impl MainMenuState {
     }
 }
 
-fn stepper_row<'a>(
+pub fn stepper_row<'a>(
     label: &'a str,
     hint: &'a str,
     value: i32,

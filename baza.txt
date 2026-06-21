@@ -1,0 +1,2228 @@
+X1010
+Czy windows Defender
+a. wykorzystuje machine learning
+b. nie integruje się z innym oprogramowaniem
+c. wykorzystuje dane z chmury
+d. żadne odpowiedź nie jest prawidłowa
+
+
+##
+
+X1000
+Autoryzacja realizowana jest przez:
+a. Nadanie uprawnień dostępu do zasobów
+b. Wpisanie hasła w procesie logowania
+c. Podanie nazwy użytkownika w procesie logowania
+d. Weryfikację biometryczną
+
+
+##
+
+X0010
+Ochrona przed atakiem (SYN flooding) to:
+a. Zastosowanie podsieci
+b. Wydajny serwer
+c. Zastosowanie odpowiedniego Firewalla
+d. Zastosowanie proxy
+
+
+##
+
+X0010
+Z czym związane jest określenie "salt"
+a. Utwardzaniem jądra systemu Linux
+b. Nie ma poprawnej odpowiedzi
+c. Wzmacnianiem hasła w systemach Linux
+d. Konfiguracją RBAC w SELinux
+
+
+##
+
+X1000
+Opcja Lock Down VPN realizuje: 
+a. brak możliwości rozłączenia VPN przez użytkownika
+b. wyłączenie po zamknięciu aplikacji
+c. zamknięcie połączenia VPN
+d. automatyczne wyłączenie po zaprzestaniu transmisji
+
+
+##
+
+X1000
+Wybierz trzy elementy konstrukcji firewall 
+a. Tabele, reguły, łańcuchy
+b. Tabele, adresy, trasy
+c. Reguły, adresy, kierunki
+d. Protokoły, filtry, adresy
+
+
+##
+
+X0001
+Pluton to:
+a. Podsystem systemu Linux
+b. Aplikacja bezpieczeństwa w Windows 11
+c. Wersja TPM
+d. Procesor bezpieczeństwa PSP
+
+
+##
+
+X0001
+Wpisanie hasła podczas logowania do systemu służy do: 
+a. Identyfikacji
+b. Autoryzacji
+c. Weryfikacji
+d. Uwierzytelniania
+
+
+##
+
+X0010
+Wskaż cechę która nie jest wykorzystywana do uwierzyteniania biometrycznego
+a. Odcisk języka
+b. Głos
+c. Kolor włosów
+d. Zapach
+
+
+##
+
+X0100
+Izolację procesów sieciowych można uzyskać stosując:
+a. Brak poprawnej odpowiedzi
+b. Maszynę virtualną
+c. Firewall.
+d. PaaS w chmurze
+
+
+##
+
+X0110
+Izolację procesów sieciowych można uzyskać stosując:
+a. PaaS w chmurze
+b. Maszynę virtualną
+c. Docker
+d. Firewall.
+
+
+##
+
+X0100
+Czy segmentacja ze stronicowaniem umożliwia współdzielenie pamięci z innymi procesami?
+a. Tak, ale tylko w procesach użytkowników
+b. Tak
+c. Nie
+d. Nie, ale z wyjątkiem procesów systemowych
+
+
+##
+
+X0010
+PAM to:
+a. Moduł analizy procesów
+b. Pluggable Autentication Method
+c. Moduł Centralnej autoryzacji
+d. Perl Additional Module
+
+
+##
+
+X1000
+PAM to:
+a. Pluggable Autentication Modules
+b. Perl Additional Module
+c. Moduł analizy procesów
+d. Nie ma poprawnej odpowiedzi
+
+
+##
+
+X0100
+FRR (False Reject Rate) dla czujników biometrycznych bez ochrony, zazwyczaj wynosi: 
+a. 10%
+b. 5%
+c. 0,1%
+d. 0,001%
+
+
+##
+
+X1001
+TPM (Trusted Platform Module)
+a. przechowuje klucze szyfrowania
+b. wyłącza rozruch mierzony windows
+c. przeprowadza autentyfikację podczas logowania
+d. wspiera Bit Locker
+
+
+##
+
+X0001
+Czy bilety w systemie Kerberos maja ograniczoną czasowo ważność?
+a. Nie ma biletów w tym systemie
+b. Żadna odpowiedź nie jest poprawna
+c. Nie
+d. Tak
+
+
+##
+
+X0100
+Bilety w systemie Kerberos maja ograniczoną czasowo ważność na czas:
+a. Nie ma biletów w tym systemie
+b. kilka godzin
+c. kilkanaście minut
+d. 1 tydzień
+
+
+##
+
+X0100
+Simple security property to reguła występująca: 
+a. W Firewall
+b. W modelu MAC
+c. W modelu DAC
+d. W ACL
+
+
+##
+
+X1000
+CSIRT to:
+a. centrum reagowania na incydenty bezpieczeństwa
+b. żadna z odpowiedzi nie jest poprawna
+c. aplikacja utwardzająca system operacyjny
+d. narzędzie do tworzenia bezpiecznego backupu
+
+
+##
+
+X0001
+CSIRT 
+a. aplikacja utwardzająca system operacyjny 
+b. narzędzie do tworzenia bezpiecznego backupu
+c. żadna z odpowiedzi nie jest poprawna
+d. regionalne centrum bezpieczeństwa
+
+
+##
+
+X0001
+Zasady grupowe służą do:
+a. żadna odpowiedź nie jest poprawna
+b. tworzenia grup bezpiecznych aplikacji
+c. ochrony zasobów sieci
+d. kontroli członkostwa w grupach
+
+
+##
+
+X0010
+NTFS jest systemem transakcyjnym oznacza że:
+a. Wspiera bazy danych
+b. umożliwia odzyskanie plików po awarii
+c. utrzymuje plik transakcji używany do odtwarzania spójności systemu plików
+d. żadna odpowiedź nie jest poprawna
+
+
+##
+
+X0010
+Hyper-V
+a. przyspiesza pracę procesora
+b. przyspiesza realizację procesów
+c. realizuje wirtualizację w windows - VBS
+d. zarządza wielowątkową pracą procesora
+
+
+##
+
+X1000
+Wzmacnianie haseł z użyciem Key stretching polega na:
+a. Wielokrotnym haszowaniu
+b. Łącznym użyciu algorytmów MD5 i SHA-1
+c. Dodaniu salt podczas haszowania
+d. Skracaniu zaszyfrowanego hasła
+
+
+##
+
+X1000
+Czemu służy randomizacja adresów procesu (ASLR) 
+a. Utwardzaniu jądra systemu Linux
+b. Przyspieszeniu translacji adresów logicznych na fizyczne
+c. Poprawie wykorzystania pamięci operacyjnej
+d. Poprawie bezpieczeństwa systemu Linux
+
+
+##
+
+X1000
+“Wyścig" (race condition) to:
+a. Możliwość kasowania i podkładania plików w miejsce plików tworzonych przez innych użytkowników
+b. Możliwość zerwania linku symbolicznego
+c. Możliwość szybkiego tworzenia plików
+d. Algorytm szeregowania procesów
+
+
+##
+
+X0100
+MBR - Master Boot Record wykorzystywany jest do:
+a. Przechowywania informacji o typie systemu plików
+b. Żadna odpowiedź nie jest poprawna
+c. Przechowywania informacji o liczbie dysków zarządzanych przez system operacyjny
+d. Backupu super bloku systemu operacyjnego
+
+
+##
+
+X0010
+MBR - Master Boot Record wykorzystywany jest do:
+a. Przechowywania informacji o systemie plików
+b. Awaryjnego uruchamiania systemu
+c. Przechowywania informacji o podziale dysku na partycje
+d. Zamykania systemu operacyjnego
+
+
+##
+
+X0001
+Która z poniższych wartości zmiennej PATH najbardziej zagraża bezpieczeństwu systemu 
+a. PATH= . :/$PATH
+b. PATH=$null
+c. PATH= : /usr/bin:/bin:/usr/local/bin
+d. PATH= . : /usr/bin:/bin:/usr/local/bin
+
+
+##
+
+X0100
+Atak na inną maszyn VM poprzez nadzorcę to: 
+a. hyperjacking
+b. hyperjump
+c. hyper Call Hooking
+d. hyperflow
+
+
+##
+
+X0010
+Bomby logiczne mogą być wykorzystywane do:
+a. Uzyskania dostępu do systemu
+b. Testowania systemu
+c. Uszkodzenia systemu
+d. Utwardzaniu systemu
+
+
+##
+
+X0100
+Jaki znak w uprawnieniach do pliku informuje o dodatkowych informacjach, liście ACL:
+a. Znak -
+b. Znak +
+c. Znak T
+d. Znak S
+
+
+##
+
+X0001
+NTFS jest systemem transakcyjnym oznacza że:
+a. żadna odpowiedź nie jest poprawna 
+b. Wspiera mechanizmy transakcyjnych baz danych
+c. utrzymuje plik transakcji używany do analizy błędów systemu plików
+d. utrzymuje plik transakcji używany do odtwarzania spójności systemu plików
+
+
+##
+
+X1100
+Cechy kontroli dostępu MAC to:
+a. Twórca nie decyduje o uprawnieniach do obiektu
+b. Twórca może nie mieć praw do obiektu
+c. Brak możliwości definiowania domyślnych uprawnień
+d. Właściciel decyduje o prawach innych użytkowników
+
+
+##
+
+X1001
+Wirtualizacja z punktu widzenia bezpieczeństwa:
+a. wprowadza pojedynczy punkt awarii (hypervisor)
+b. zmniejsza powierzchnie ataku
+c. uniemożliwia ataki
+d. zwiększa powierzchnie ataku
+
+
+##
+
+X0010
+Działanie REVOKE to:
+a. nadanie prawa dopuszczającego
+b. odebranie uprawnienia nadanego za pomocą GRANT
+c. odebranie uprawnienia nadanego za pomocą GRANT albo DENY
+d. nadanie prawa zabraniającego
+
+
+##
+
+X0100
+Zaznacz efekty bitu zaczepienia (sticky bit)
+a. Pozwala wykonać kazdy proces z identyfikatorem 0
+b. Zatrzymuje tekst programu w pamięci
+c. Modyfikuje prawa zapisu katalogu
+d. Pozwala łatwo kopiować pliki pomiędzy systemami operacyjnymi
+
+
+##
+
+X0100
+Wirtualizacja sieci (Network Virtualization) obejmuje:
+a. vRAM I Logical Router
+b. Logical Firewall i Logical Load Balancer
+c. VCPU i Logical Firewall
+d. Logical Switch i vCPU
+
+
+##
+
+X0100
+Pakiet Tripwire służy do:
+a. Tworzenia bazy danych, informacji o konfiguracji systemu operacyjnego
+b. Wykrywania modyfikacji plików w systemie
+c. Monitorowania systemu plików
+d. Monitorowania warstwy aplikacji sieci
+
+
+##
+
+X0001
+Trzy cechy informacji bezpiecznej to:
+a. zgodność, poufność, tajność
+b. transparentność, tajność, dostępność
+c. niezaprzeczalność, poufność, dostępność
+d. poufność, dostępność, integralność
+
+
+##
+
+X0001
+Budowanie reguł firewali odbywa w oparciu o:
+a. Informacje z chmury
+b. Nagłówki pakietów
+c. Rozmiar pakietów
+d. Adresy MAC i porty TCP i UDP
+
+
+##
+
+X0011
+Budowanie reguł firewali odbywa w oparciu o:
+a. Rozmiar pakietów
+b. Nagłówki pakietów
+c. Adresy MAC
+d. Porty TCP i UDP
+
+
+##
+
+X0100
+Sniffery służą do:
+a. Żadna odpowiedź nie jest poprawna
+b. Podsłuchiwania ruchu w sieci
+c. Blokowanie komunikacji broadcast
+d. Monitorowania warstw sieciowych 1-4
+
+
+##
+
+X0010
+Gdzie zapisane są informacje o SUID.
+a. W jądrze systemu Unix
+b. W superbloku
+c. W systemie plików
+d. W i węźle
+
+
+##
+
+X0010
+Gdzie zapisane są informacje o SUID.
+a. W uprawnieniach dostępu do pliku
+b. W jądrze systemu Unix
+c. W systemie plików
+d. W superbloku
+
+
+##
+
+X0010
+Rozdział 3 manuala systemowego UNIX (komenda man) zawiera:
+a. opis komend shell-a
+b. format systemowych plików konfiguracyjnych
+c. funkcje biblioteczne języka C nie będące funkcjami systemowymi
+d. funkcje systemowe
+
+
+##
+
+X0100
+DDoS to:
+Dyskowy system plików
+rodzaj ataku na system komputerowy
+Double Data Space (Szyfrowana przestrzeń dyskowa)
+Żadna odpowiedź nie jest poprawna
+
+
+##
+
+X0001
+Najpopularniejszy serwer DNS to program: (tu bardziej chyba chodziło o najpopularnieszy program do ochrony DNS)
+dnsd
+pop3d
+host
+bind
+
+
+##
+
+X0001
+Którą z poniższych czynności należy zakwalifikować jako atak DoS?
+usuwanie z raportów systemowych informacji mogących wskazywać na dokonanie włamania
+podsłuchiwanie pakietów w sieci
+fałszowanie nagłówków przy wysyłaniu poczty elektronicznej
+wysyłanie pakietów SYN i ignorowanie odpowiedzi na nie
+
+
+##
+
+X0010
+Informacje o właścicielu pliku są przechowywane:
+w i-węźle, poprzez nazwę użytkownika
+w tablicy praw dostępu ACL związanej z plikiem
+w i-węźle, jako numer uid
+w katalogu zawierającym dany plik
+
+
+##
+
+X0001
+Na czym bazują ataki typu Ping of Death?
+adresach rozgłoszeniowych
+phishingu
+sniffingu
+fragmentacji pakietów
+
+
+##
+
+X0001
+Wybierz trzy możliwe stany procesu w systemie Unix
+nieaktywny, zawieszony, przerwany
+wysunięty, zawieszony, oczekujący
+zabity, uśpiony, wywłaszczony
+wykonywany, uśpiony, zombie
+
+
+##
+
+X1000
+Który z poniższych systemów nie służy do wirtualizacji procesów
+VENOM
+Xen
+VMWare
+Docker
+
+
+##
+
+X0001
+rozwiń skrót VPN
+Vritual Private Node
+Virtual Parent Network
+Virtual Popular Network
+Virtual Private Network
+
+
+##
+
+X0010
+Poprawne funkcjonowanie serwera www.pwr.edu.pl zależy w sposób pośredni od bezpieczeństwa obsługującego:
+DNS domeny edu.
+DNS domeny let.pwr.wroc.pl
+DNS domeny . (kropka)
+FTP domeny pwr.wroc.pl
+
+
+
+##
+
+X0010
+Funkcja chroot() pozwala:
+ograniczyć katalogi dostępne uruchamianym procesom
+uniemożliwić procesowi korzystanie z dowiązań symbolicznych
+bezpiecznie uruchamiać programy działające z uprawnieniami użytkownika root
+przenieść uprawnienia użytkownika root na innego użytkownika systemu
+
+
+##
+
+X0010
+Które z poniższych usług korzystają z mechanizmów RPC (Remote Procedure Call)?
+a. FTP
+b. inetd
+c. nfsd, nfsclient
+d. sendmail, postfix
+
+
+##
+
+X1011
+Jaki będzie następny etap działań włamywacza po skutecznym ataku typu Remote Code Execution? (Tutaj wgl nie jestem pewien, zależy od sytuacji)
+instalacja tylnej furtki
+instalacja rootkitów
+zacieranie śladów w logach systemowych
+eskalacja uprawnień do poziomu administratora
+
+
+##
+
+X0100
+Program służący do uzyskania jawnej wersji hasła przez podglądanie klawiatury użytkownika to:
+sniffer
+koń trojański
+cracker
+firewall
+
+
+##
+
+X0001
+Jaki znak w uprawnieniach do pliku informuje o dodatkowych informacjach (liście ACL)?
+znak T
+znak -
+znak S
+znak +
+
+
+##
+
+X0100
+Program ps pokazuje:
+listę połączeń sieciowych
+listę procesów uruchomionych w systemie
+statystyki zużycia pamięci
+listę zalogowanych użytkowników
+
+
+##
+
+X0010
+Jaki język jest powszechnie używany do automatyzacji wykonywania zadań związanych z administracją systemem w systemach Windows?
+Python
+Bash
+PowerShell
+Ruby
+
+
+##
+
+X0001
+Korzystanie z funkcji fgets() powinno być zabronione ze względu na
+możliwość nadpisania bufora
+ignorowanie dowiązań symbolicznych
+problem inicjowania zmiennych
+błąd w druku, w pytaniu chodzi o funkcję gets()
+
+
+##
+
+X1000
+Którym z podanych narzędzi można sprawdzić listę aktywnych połączeń TCP?
+a. netstat
+b. mtr
+c. traceroute
+d. tripwire
+
+
+##
+
+X0100
+Na którym poziomie bezpieczeństwa klasyfikowany jest standardowo skonfigurowany Linux?
+a. A1
+b. C1
+c. B1
+d. C2
+
+
+##
+
+X0001
+Która z wymienionych cech nie jestproblemem dotyczącym usługi DNS?
+a. podatność na ataki spoofing
+b. podatność na ataki sniffing
+c. konieczność zaufania danym pochodzących z innych serwerów
+d. konieczność zapewnienia działania redundantnych serwerów
+
+
+##
+
+X0001
+Które z przedstawionych informacji przechowywane są w i-węźle?
+a. czas modyfikacji pliku (mtime)
+b. czas ostatniego dostępu do zawartości pliku (atime)
+c. długość pliku
+d. wszystkie wymienione
+
+
+##
+
+X0001
+Co należy zablokować na wszystkich routerach, by uniemożliwić lub ograniczyć zasięg ataków SMURF?
+a. forwardowanie pakietów ICMP
+b. forwardowanie pakietów ARP
+c. broadcasty UDP
+d. forwardowanie pakietów na adresy rozgłoszeniowe
+
+
+##
+
+X0001
+Jaka jest min. liczba pakietów (a w zasadzie ich fragmentów) potrzebna do skutecznego ataku typu Ping of Death?
+a. 3
+b. 5
+c. 1
+d. 2
+
+
+##
+
+X1
+Rozwiń skróty TCP/UDP. Co one oznaczają (otwarte)
+TCP (Transmission Control Protocol), UDP (User Datagram Protocol). TCP jest protokołem warstwy transportowej, który zapewnia niezawodną, uporządkowaną i bezbłędną transmisję danych między aplikacjami działającymi na różnych urządzeniach. UDP jest protokołem warstwy transportowej, który zapewnia szybką, ale mniej niezawodną transmisję danych.
+
+
+##
+
+X1000
+[img]z1.png[/img]
+A. transfer protokołem FTP w trybie aktywnym
+B. transfer protokołem FTP w trybie pasywnym
+C. transfer protokołem HTTP w trybie GET
+D. transfer protokołem HTTP w trybie POST
+
+
+
+
+##
+
+X001
+Jakiego algorytmu używa S/Key?
+MD1
+MD3
+MD5 (lub także SHA1, MD4)
+
+
+##
+
+X001
+Narzędzie do analizowania sieci:
+sniffer
+firewall
+nmap
+
+
+##
+
+X1
+PYTANIE OTWARTE! Jak inaczej nazywa się funkcję skrótu?
+funkcja jednokierunkowa/hashująca, kryptograficzna funkcja sumy kontrolnej
+
+
+##
+
+X0001
+Który z wymienionych poniżej problemów bezpieczeństwa występuje w przedstawionym programie? main(int argc, char ** argv) { int i; char buf[20]; for(i=0; i<=20; i++) if(buf[i]='\0') system(argv[1]);
+możliwość niewłaściwiej interpretacji znaków specjalnych
+wyścig (race condition)
+korzystanie z niezainicjowanych zmiennych
+nadpisanie bufora
+
+
+##
+
+X1000
+Dysponujemy komputerem potrafiącym wykonać 10^13 operacji MD5 na sekundę. Znamy hasło systemu S/Key numer 42. Ile czasu zabierze nam wygenerowanie hasła numer 40?
+więcej niż wiek wszechświata
+poniżej sekundy
+10^4 lat
+tydzień
+
+
+##
+
+X0100
+Dysponujemy komputerem potrafiącym wykonać 10^13 operacji MD5 na sekundę. Znamy hasło systemu S/Key numer 40. Ile czasu zabierze nam wygenerowanie hasła numer 42?
+więcej niż wiek wszechświata
+poniżej sekundy
+10^4 lat
+tydzień
+
+
+##
+
+X0001
+Które z poniższych haseł będzie najtrudniejsze do złamania metodą "brute force", jeśli wiemy o nim, że jest to:
+słowo języka polskiego
+4-znakowe hasło składające się z małych i wielkich liter alfabetu łacińskiego
+PIN do karty płatniczej
+8-znakowe hasło składające się z samych cyfr
+
+
+##
+
+X0010
+Które z poniższych haseł będzie najłatwiejsze do złamania metodą "brute force", jeśli wiemy o nim, że jest to:
+słowo języka polskiego
+4-znakowe hasło składające się z małych i wielkich liter alfabetu łacińskiego
+PIN do karty płatniczej
+8-znakowe hasło składające się z samych cyfr
+
+
+##
+
+X0010
+Wadą systemu SecureID jest:
+korzystanie tylko z jednej metody mocnego uwierzytelnienia (coś co masz)
+możliwość podsłuchania hasła podczas jego wprowadzania
+długi czas wymagany w celu zalogowania się do kilku systemów
+konieczność radiowej synchronizacji zegarów tokena i systemu
+
+
+##
+
+X0001
+PUT COAT BAD CAT PILL HAT to:
+Hasło systemu SecureID
+Hasło zaszyfrowane funkcją CRYPT
+Tekst zaszyfrowany algorytmem ROT13
+Hasło systemu S/Key
+
+
+##
+
+X0100
+Która z poniższych deklaracji jest najbardziej niebezpieczna?
+PATH=/usr/bin:/bin:
+PATH=:/usr/bin:/bin
+PATH=/usr/bin:/bin
+PATH=/var/tmp:/bin
+
+
+##
+
+X0001
+Błąd typu "buffer overflow" dotyczący zmiennej alokowanej funkcją malloc() najprawdopodobniej zakończy program za pomocą sygnału. Jeśli tak, to będzie to sygnał:
+SIGPIPE (Broken pipe)
+SIGFPE (Floating point exception)
+SIGHUP (Hangup)
+SISEGV (Segmentation fault)
+
+
+##
+
+X0100
+Błędy typu nadpisanie bufora występują wyłącznie w systemie operacyjnym:
+Mac-OS
+są niezależne od systemu operacyjnego
+MS-Windows (różnych odmianach)
+Unix
+
+
+##
+
+X0001
+O czym należy pamiętać po wykonaniu n=strncpy(p2, p1, MAX);?
+p2[strlen(p2)+1]='\0';
+free(p2);
+p2[strlen(p2)]='\0';
+p2[MAX-1] ='\0';
+
+
+##
+
+X0010
+Program rlogind nie jest bezpieczny gdyż przy logowaniu:
+za pomocą opcji DEBUG można go zmusić do zdalnego wykonania dowolnej komendy
+nie można w nim zablokować dostępu dla użytkownika root
+pozwala wejść bez hasła na podstawie pliku .rhosts i danych podawanych przez klienta
+używa metod szyfrowania uznanych za słabe
+
+
+##
+
+X0010
+Które z poniższych funkcji są podatne na zagrożenie związane z interpretacją znaków specjalnych przy przekazywaniu parametrów?
+popen() i exec()
+tylko popen()
+system() i popen()
+tylko system()
+
+
+##
+
+X1000
+Wszystkie z poniższych funkcji są niebezpieczne i nie powinny być nigdy używane (szczególnie w programach typu suid) - z wyjątkiem jednej. Której?
+open()
+system()
+gets()
+popen()
+
+
+##
+
+X1000
+Aby uniknąć problemu wyścigu podczas tworzenia pliku w katalogu o dostępie publicznym należy użyć:
+open("plik", O_CREAT|O_EXCL|O_RDWR, 0600);
+creat(“plik”,0600);
+open("plik", O_CREAT|O_RDWR, 0600);
+fopen(“plik”,”rw”);
+
+
+##
+
+X0001
+Gna54gd2rA@fG to może być:
+hasło systemu SecureID
+standardowe hasło zaszyfrowane funkcją MD5
+hasło systemu S/Key
+standardowe hasło zaszyfrowane funkcją CRYPT
+
+
+##
+
+X0010
+Który z poniższych identyfikatorów zostanie porównany z prawami dostępu do pliku w celu stwierdzenia, czy proces może uzyskać do niego dostęp?
+suid (saved uid)
+ruid (real uid)
+euid
+rgid
+
+
+##
+
+X0100
+Z którą opcją formatowania należy szczególnie uważać w funkcji printf() ze względu na problemy bezpieczeństwa?
+%d
+%n
+%x
+%s
+
+
+##
+
+X1000
+Program służący do uzyskania jawnej wersji hasła na podstawie jego zaszyfrowanej formy to:
+cracker
+sniffer
+firewall
+skaner
+
+
+##
+
+X0010
+Komputer korzystający z systemu S/Key ma w pliku haseł dla danego użytkownika zapisane hasło numer 42. Użytkownik zostanie przy próbie logowania zapytany o hasło numer:
+43
+42
+41
+0
+
+
+##
+
+X0010
+Podejrzewamy włamanie do systemu, w którym jesteśmy jedynym administratorem. Naszą uwagę zwróciły następujące fakty (pozostałe wymienione sytuacje jesteśmy w stanie wytłumaczyć normalnym działaniem systemu):
+przybyło miejsca w katalogu /var/log
+plik /etc/passwd ma datę modyfikacji wskazującą na zmianę w ciągu ostatniej doby
+w katalogu /etc znaleźliśmy pliki z datą modyfikacji w przyszłości
+plik /dev/null ma zerową długość
+
+
+##
+
+X1
+PYTANIE OTWARTE! Jak należy rozwinąć skrót RSA i jakiego typu algorytm się za nim kryje?
+Rivest Shamir Adleman, algorytm kryptograficzny klucza publicznego (asymetryczny)
+
+
+##
+
+X0100
+Pakiet rozpoczynający połączenie w protokole TCP można rozpoznać po tym, że ma:
+ustawioną opcje PUSH i ACK
+ustawioną opcję SYN i skasowaną ACK
+ustawione opcje ACK i SYN
+ustawioną opcję ACK i skasowaną SYN
+
+
+##
+
+X0001
+BAPaV9Tj/MXN7 to może być:
+hasło systemu SecureID
+tekst zaszyfrowany algorytmem ROT13
+hasło systemu S/Key
+standardowe hasło zaszyfrowane funkcją CRYPT
+
+
+##
+
+X1000
+Dane biometryczne użytkownika mogą stanowić:
+jedną z metod mocnego uwierzytelnienia, w połączeniu z inną metodą, np. sprawdzeniem PINu
+jedną z metod mocnego uwierzytelnienia, w połączeniu z co najmniej dwoma innymi metodami
+metodę generowania funkcji skrótu w podpisach cyfrowych
+samodzielną metodę mocnego uwierzytelnienia
+
+
+##
+
+X1
+PYTANIE OTWARTE! Co robi chroot?
+Uruchamia środowisko ze zmienionym katalogiem głównym.
+
+
+##
+
+X0100
+int main (argc, argv[]) { int buf,i; for(i=0;i<=20;i++) if(!(buf[i]='') fork(); } - co nie grozi temu programowi?
+przepełnienie bufora
+nieskończona pętla
+niezainicjowanie zmiennych
+DoS
+
+
+##
+
+X0100
+Lista wszystkich użytkowników lokalnego systemu UNIX znajduje się w pliku:
+/etc/hosts
+/etc/passwd
+/etc/users
+/etc/ftpusers
+
+
+##
+
+X1000
+Jaka jest metoda aktywnego testu penetracyjnego?
+skanowanie sieci
+informacje publiczne
+whois
+zgoogle hacking
+
+
+##
+
+X0100
+Instalacja pakietu tcp.wrapper polega na modyfikacji plików konfiguracyjnych demona:
+telnetd
+inetd
+identd
+indent
+
+
+##
+
+X0100
+PET SMUG CACH DASK BUT AFAR to:
+Hasło systemu SecureID
+Hasło systemu S/KEY
+Hasło zaszyfrowane funkcją CRYPT
+Tekst zaszyfrowany algorytmem ROT13
+
+
+##
+
+X0100
+Komputer korzystający z systemu S/Key ma w pliku haseł dla danego użytkownika zapisane hasło numer 46. Użytkownik zostanie przy próbie logowanie zapytany o hasło numer:
+46
+45
+0
+47
+
+
+##
+
+X1000
+Router zapewniający funkcję maskarady adresów IP otrzymał z internetu odpowiedź serwera na pakiet TCP wysłany przez klienta znajdującego się za maskaradą. Na podstawie których danych (pochodzących z etgo pakietu) wybierze on do kogo przesłać go dalej?
+adres i port źródłowy oraz adres i port docelowy
+wyłącznie adres i port źródłowy
+wyłacznie adres i port docelowy
+wyłącznie adres źródłowy i adres docelowy
+
+
+##
+
+X0100
+Czego nie można powiedzieć o komunikacji w sieciach IP?
+pakiety IP mogą być łatwo fałszowane
+poprawa bezpieczeństwa za pomocą szyfrowania musi być dokonywana w warstwie aplikacji modelu OSI
+warstwa sieciowa IP nie gwarantuje poufności danych
+wiele problemów bezpieczeństwa nie może zostać poprawnie rozwiązanych ze względu na zaszłości historyczne
+
+
+##
+
+X001
+Proces potomny utworzony funkcja fork():
+dziedziczy zbiór nieodebranych sygnałów
+dziedziczy blokady plikowe
+dziedziczy wskaźnik na pamięć dzieloną
+
+
+##
+
+X01
+Które zdanie poniżej jest prawdziwe?
+w adresie klasy A dwie początkowe liczby numeru określają samą sieć, a następne dwie identyfikują komputer
+protokół IP jest protokołem niskiego poziomu, służącym do transmisji pakietów
+
+
+##
+
+X010
+Funkcja 'open' w przypadku niepowodzenia przy otwieraniu pliku zwraca wartość:
+numeru błędu I/O
+liczbę '-1'
+liczbę '0'
+
+
+##
+
+X001
+Funkcja systemowa fork():
+wywołana raz (przez proces macierzysty) przekazuje wartość dwukrotnie (potomkowi i przodkowi) oraz tworzy kopię procesu, który był wykonywany
+wywołana raz (przez proces macierzysty) przekazuje procesowi potomnemu numer identyfikacyjny nowo utworzonego procesu potomnego
+tworzy kopię procesu, który był wykonywany
+
+
+##
+
+X100
+Aby firma była pewna, że jej dane nie zostaną odczytane (przez kogoś) przed ich kolejnym uaktualnieniem, programista, ktory zaprogramował serwer, powinien:
+przed ponowną aktualizacją określonych danych zabezpieczyć w/w dane przed odczytem przez innych użytkowników zakładając semafor
+odłączyć serwer od użytkowników, zaktualizować dane, następnie ponownie zalogować wszystkich użytkowników
+zablokować kolejki komunikatów, aż do uaktualnienia określonych danych, a następnie odblokować kolejki
+
+
+##
+
+X1000
+Która z poniższych metod ustalania hasła da nam hasło trudne do złamania?
+wybranie pierwszych lub ostatnich liter z łatwej do zapamiętania frazy
+sklejenie fragmentów znanych nam numerów telefonów
+imię i nazwisko (niekoniecznie swoje) pisane wspak
+wybranie 2-3 łatwych do zapamiętania słów z obcego języka
+
+
+##
+
+X0100
+W katalogu domowym użytkownika znajduje się plik .plan, którego zawartość ma być dostępna dla wszystkich, jednak nie chcemy, by ktokolwiek oprócz właściciela przeglądał zawartość jego katalogu domowego. Prawa dostępu do katalogu i pliku powinny być ustawione odpowiednio na:
+drwxr-xr-x i -rw-r--r--
+drwx--x--x i -r--r--r--
+drwx------ i -rw-r-----
+0771 i 0611
+
+
+##
+
+X0001
+$1$0mnXpt7s$10tGPE4kBAPaV9Tj356qa. to może być:
+hasło systemu SecureID
+standardowe hasło zaszyfrowane funkcją MD5
+hasło systemu S/Key
+standardowe hasło zaszyfrowane funkcją CRYPT
+
+
+##
+
+X0010
+Bit praw dostępu pozwalający podczas wykonywania programu na zmianę efektywnego numeru użytkownika to:
+-rwxr-sr-x
+bit 02000
+bit 04000
+bit wykonania
+
+
+##
+
+X0010
+Atak, w którym użytkownik otrzymuje komunikat, że jest zagrożony i usunięcie zagrożenia oferowane jest po zapłaceniu:
+trojan
+ransomware
+scareware
+malware
+
+
+##
+
+X0100
+Problem włamań przez nadpisywanie bufora w programach można ominąć stosując:
+sprzętowe zabezpieczanie segmentu kodu przed zapisem
+sprzętowe zabezpieczanie segmentu danych przed wykonywaniem
+sprzętowe zabezpieczanie segmentu danych zapisem
+funkcję strcpy() zamiast strncpy()
+
+
+##
+
+X0100
+Problem nadpisania bufora dotyczy najczęściej przestrzeni pamięci znajdującej się
+w segmencie danych
+na stosie
+w segmencie kodu
+w segmencie pamięci wspólnej
+
+
+##
+
+X1000
+Które z poniższych stwierdzeń określa wadę systemu S/Key?
+Korzystanie z systemu wymaga noszenia ze sobą listy wydrukowanych wcześniej haseł (którą można zgubić) lub posiadania specjalnych urządzeń do ich generowania
+Hasła można łatwo przeczytać z ogólnodostępnego pliku /etc/skeykeys
+System nie jest odporny na pasywne ataki typu sniffing
+Wszystkie hasła w postaci jawnej dostępne są administratorowi systemu
+
+
+##
+
+X0001
+Celem wstawiania "kanarków" przez kompilatory jest:
+wykrywnie i przeciwdziałanie błędom "race condition" (wyścig)
+ochrona własności intelektualnej przez unikalne znakowanie kodu ułatwiające identyfikację nielegalnie używanych kopii programów
+ułatwienie programistom debugowania programów przez umieszczenie symboli w kodzie
+wykrywanie i przeciwdziałanie błędom nadpisania bufora
+
+
+##
+
+X0010
+Zakładamy, że u234, g456 oznaczają odpowiednio użytkownika/grupę o takim numerze uid/gid. Proces uruchomiony z pid=666, uid=333, euid=444, egid=300 może przeczytać zawartość pliku:
+-r-------- u666 g444 .logout
+-rw------- u333 g444 .forward
+-r-x--x--x u444 g300 .bashrc
+-rwxr-x--- u666 g444 .cshrc
+
+
+##
+
+X0001
+Z czym związane są Romeo&Juliet, Klez.E, Kasper A.?
+HTTP
+FTP
+SSH
+SMTP
+
+
+##
+
+X1000
+Wywołanie funkcji systemowej open() z parametrami open("/tmp/plikXX", 0_EXCL|0_CREAT) może powodować problemy:
+praw dostępu, pozwalających innym użytkownikom czytać utworzony plik
+blokowania procesu, jeśli otwieranym plikiem jest strumień FIFO
+nadpisania pliku, jeśli istnieje już link symboliczny o podanej nazwie
+wyścigu w tworzeniu plików tymczasowych
+
+
+##
+
+X0100
+Dlaczego korzystanie z tradycyjnych haseł nie jest uznawane za bezpieczne?
+Brak standardowej metody zapisu haseł uniemożliwia dokonywanie zdalnej autoryzacji
+Łatwo je podsłuchać
+Łatwo je przeczytać z pliku /etc/shadow
+Wszystkie hasła w postaci jawnej dostępne są administratorowi systemu
+
+
+##
+
+X0010
+Certyfikat pobierany z serwera WWW w trakcie nawiązywania sesji HTTPS jest odpowiednikiem:
+klucza sesji
+klucza publicznego klienta
+klucza publicznego serwera
+klucza prywatnego serwera
+
+
+##
+
+X0100
+Problem bezpieczeństwa znany jako "-froot exploit" to głównie problem:
+wyścigu
+przekazywania i interpretacji danych pomiędzy procesami
+nadpisania bufora
+nieprawidłowej obsługi sygnałów
+
+
+##
+
+X0010
+Standardowe sprawdzenie hasła przez system UNIX polega na:
+porównaniu podanego hasła z jego jawną wersją przechowywaną w systemie
+wylosowaniu kodu autoryzacji i sprawdzeniu czy odpowiada on danym podanym przez użytkownika
+zaszyfrowaniu hasła podanego przez użytkownika i porównaniu otrzymanego wyniku z wersją trzymaną w systemie
+odszyfrowaniu wersji przechowywanej w systemie i porównaniu wyniku z hasłem podanym przez użytkownika
+
+
+##
+
+X0100
+Która z poniższych deklaracji jest najbardziej niebezpieczna?
+PATH=/usr/bin:/bin
+PATH=:/usr/bin:/bin
+PATH=/usr/bin:/bin:
+PATH=/usr/local/bin:/bin
+
+
+##
+
+X0100
+Do czego służy program Tripwire?
+do sprawdzania integralności instalowanych z sieci pakietów oprogramowania
+do wykrywania zainstalowanych pakietów rootkit i innych modyfikacji systemu
+do instalowania łat na oprogramowanie systemowe
+do planowania podróży przez Internet
+
+
+##
+
+X0001
+Prawa dostępu 0711 są typowe dla katalogu:
+/tmp
+/etc
+/lib
+domowego
+
+
+##
+
+X0001
+Której z poniższych metod można użyć jako alternatywnej w stosunku do standardowego sprawdzania nazwy użytkownika/hasła w systemie opartym o dostęp do dokumentów via WWW?
+HTTPS
+SSL (Secure Socket Layer)
+indywidualne klucze (certyfikaty) klienta
+podpisy cyfrowe
+
+
+##
+
+X0001
+Komputer korzystający z systemu S/Key ma w pliku haseł dla danego użytkownika zapisane hasło numer n. Użytkownik zostanie przy próbie logowania poproszony o hasło:
+n + 1
+n
+0
+n - 1
+
+
+##
+
+X1000
+Osoba, która wykonuje testy bezpieczeństwa na zamówienie organizacji, w której testy są przeprowadzane:
+white hat
+black hat
+grey hacker
+hacktivist
+
+
+##
+
+X0001
+Która z poniższych czynności nie jest charakterystyką typowego systemu firewall?
+Odrzucanie pakietów przychodzących z zewnątrz na podstawie adresu IP
+Odrzucanie pakietów przychodzących z zewnątrz na podstawie docelowego numeru portu
+Zapisywanie plików raportowych zawierających informacje o ruchu sieciowym
+Weryfikacja podpisów cyfrowych przychodzących pakietów
+
+
+##
+
+X1000
+Które z wymienionych pól są obowiązkowo wymagane w certyfikacie SSL?
+Common Name
+Organisation
+Country
+Email Address
+
+
+##
+
+X0010
+Proces działający z uprawnieniami zwykłego użytkownika, który chce wykorzystać do komunikacji z drugą stroną lokalny port numer 257 spowoduje wystąpienie błędu w funkcji:
+socket()
+connect()
+bind()
+accept()
+
+
+##
+
+X1000
+Zakładamy, że u234, g456 oznaczają odpowiednio użytkownika/grupę o takim numerze uid/gid. Proces uruchomiony z pid=123, uid=404, euid=421, egid=300 może przeczytać zawartość pliku:
+-r-x--x--x u421 g300 .cshrc
+-rwxr-x--- u123 g421 .bashrc
+-rwx------ u123 g421 .forward
+-rw------- u404 g421 .plan
+
+
+##
+
+X0010
+Bit praw dostępu pozwalający podczas wykonywania programu na zmianę efektywnego numeru użytkownika to:
+sticky bit
+bit wykonania
+set-user-id
+set-group-id
+
+
+##
+
+X0001
+Błąd typu nadpisanie bufora (prowadzący do wykonania złośliwego kodu) polega na:
+wykorzystaniu tego samego bufora w różnych funkcjach systemowych (np. czytania danych z dysku)
+niezamierzonej modyfikacji danych w segmencie danych
+przekazaniu zbyt wielu parametrów do funkcji
+niezamierzonej modyfikacji danych na stosie
+
+
+##
+
+X10000
+Co jest uznawane za najpoważniejszy błąd programistyczny prowadzący do problemów bezpieczeństwa danych? Wybierz jedną odpowiedź:
+nieodpowiednia kontrola danych wejściowych podczas generowania stron WWW
+stosowanie niewystarczająco mocnych algorytmów kryptograficznych
+stosowanie niewłaściwej długości przy dostępie do danych w buforze
+wyścig
+brak szyfrowania poufnych danych
+
+
+##
+
+X10001
+Kanarek jest metodą pozwalającą ograniczać ataki typu? Wybierz wszystkie poprawne odpowiedzi:
+Stack Smashing (nadpisywanie stosu)
+Race Condition (wyścig)
+Bash Code Injection (wstrzykiwanie kodu Bash)
+SQL Injection (wstrzykiwanie kodu SQL)
+Buffer Overflow (nadpisanie bufora)
+
+
+##
+
+X10001
+W których z poniższych funkcji występują problemy z możliwością wstrzyknięcia kodu przy przekazywaniu parametrów między procesami? Wybierz wszystkie poprawne odpowiedzi: (niepewne odpowiedzi)
+system()
+exec()
+gets()
+open()
+popen()
+
+
+##
+
+X01001
+W których z poniższych funkcji nie da się uniknąć wystąpienia błędu buffer overflow? Wybierz wszystkie poprawne odpowiedzi:
+open
+gets
+system
+popen
+strcpy
+
+
+##
+
+X1000
+W katalogu /etc znajduje się plik passwd z ustawionymi uprawnieniami -rwxrwxrwx (właścicielem jest root). Jak należy zmienić uprawnienia, żeby zwykli użytkownicy nie mogli go zmieniać, a system nadal działał prawidłowo?
+chmod 644 passwd
+chmod 646 passwd
+chmod go-rx passwd
+chmod a-rw passwd
+
+
+##
+
+X1000
+List e-mail o treści "aby uaktywnić konto BZWBK 24, należy kliknąć poniższe łącze i wprowadzić numer karty na wyświetlonej stronie w celu potwierdzenia BZWBK 24" możemy zakwalifikować jako atak typu:
+phishing
+DoS
+sniffing
+SMURF
+
+
+##
+X1000
+Jaką pojemność całkowitą uzyskamy łącząc w macierz RAID 1 dwa dyski o pojemności 3 TB każdy?
+3 TB
+4 TB
+2 TB
+6 TB
+
+
+##
+
+X0010
+Jakie są typowe długości klucza używane w systemach kryptograficznych z kluczem publicznym?
+512-1024 bitów
+256-512 bitów
+1024-2048 bitów
+2048-4096 bitów
+
+
+##
+
+X1000
+Prawa dostępu 1777 są typowe dla katalogu:
+/tmp
+/etc
+/var
+/home
+
+
+##
+
+X1000
+Na jaki rodzaj ataku był podatny system JSOS 2.0 w semestrze zimowym 2015?
+TAS (The Akkerman Steppes) flood
+DSDoS (Distributed Student's Denial of Service)
+Nadpisanie bufora
+
+
+##
+
+X010
+Atak, w którym użytkownik otrzymuje komunikat, że jest zagrożony i usunięcie zagrożenia oferowane jest po zapłaceniu:
+trojan
+ransomware
+malware
+
+
+##
+
+X0001
+Która z poniższych metod jest popularnym szyfrem z kluczem publicznym?
+RC4
+IDEA
+DES
+ElGamal
+
+
+##
+
+X0010
+Gdy łączymy się z domowego komputera protokołem SSH połączenie zostaje nawiązane, ale jeśli pozostawimy je nieaktywne podczas gdy czytamy pocztę, to po kilku minutach zostaje zerwane. Co może być tego przyczyną?
+firewall bezstanowy blokujący połączenia zwrotne
+firewall bezstanowy filtrujący pakiety ICMP
+problemy z ustawieniami NAT
+używanie niewłaściwych aresów po wewnętrznej stronie maskarady
+
+
+##
+
+X1000
+Tryb CBC pracy szyfrów blokowych:
+jest bezpieczniejszy niż tryb ECB
+szyfruje każdy blok tekstu niezależnie od pozostałych
+jest podatny na ataki z powtórzeniem bloku
+jest podatny na kryptoanalizę, jeśli znamy szyfrogram i tekst jawny
+
+
+##
+
+X1000
+Użycie pastylki iButton nie implementującej funkcji kryptograficznych w aplikacji takiej jak zamek cyfrowy pozwala na ominięcie zabezpieczeń metodą:
+"replay attack"
+złamanie klucza zawartego w pastylce
+aktywną modyfikację danych podczas transferu danych
+żadną z powyższych
+
+
+##
+
+X0010
+Który z podanych adresów IP nie powinien znaleźć się poza NATem?
+156.17.42.69
+8.8.8.8
+10.104.16.254
+87.105.73.48
+
+
+##
+
+X0100
+Który z podanych adresów IP nie powinien znaleźć się poza NATem?
+172.10.0.1
+172.16.1.21
+156.17.9.14
+172.32.10.10
+
+
+##
+
+X0100
+SSL stanowi warstwę oprogramowania wzbogacającą komunikację TCP o funkcje szyfrowania transmisji. W której warstwie modelu OSI znajduje się SSL?
+łącza
+sesji
+aplikacji
+prezentacji
+
+
+##
+
+X0001
+Analiza częstotliwości występowania znaków szyfrogramu i zestawianie ich z częstotliwością liter w języku tekstu jawnego jest wykorzystywana przy:
+łamaniu szyfrów symetrycznych przestawieniowych
+łamania szyfrów zapewniających poufność doskonałą
+żadna z odpowiedzi nie jest poprawna
+łamaniu szyfrów symetrycznych podstawieniowych
+
+
+##
+
+X0100
+Który z poniższych skrótów nie jest nazwą popularnej funkcji skrótu?
+MD5
+DES
+MD-2
+SHA
+
+
+##
+
+X0010
+Która z poniższych cech sama w sobie nie oznacza słabości/wady kryptograficznej funkcji skrótu?
+Te same dane wejściowe mogą dawać różne dane wynikowe
+Zmiana pojedynczego bitu w danych wejściowych zmienia z reguły 1-2 bity w danych wynikowych
+Algorytm działania funkcji trzymany jest w ścisłej tajemnicy
+Różne dane wejściowe mogą dawać ten sam wynik wyjściowy
+
+
+##
+
+X1000
+Z którym z poniższych pojęć z pewnością nie będziemy mieli do czynienia korzystając z kryptografii asymetrycznej?
+generator strumienia klucza
+klucz prywatny
+algorytm szyfrowania
+klucz publiczny
+
+
+##
+
+X0001
+Metoda ataku przez analizę częstotliwości występowania znaków jest skuteczna w przypadku szyfrów?
+strumieniowych
+z kluczem asymetrycznym
+blokowych
+podstawieniowych
+
+
+##
+
+X0010
+Które rodzaje szyfrów uznawane są za wolniejsze od pozostałych?
+symetryczne
+z kluczem prywatnym
+z kluczem publicznym
+wykorzystujące algorytm ROT13
+
+
+##
+
+X1000
+Czego nie można zrobić za pomocą GPG?
+utworzyć szyfrowanego kanału komunikacyjnego
+zaszyfrować wiadomości tak, by wielu adresatów mogło ją odczytać
+wygenerować cyfrowego podpisu pod wiadomością
+wygenerować cyfrowego podpisu pod kluczem innej osoby
+
+
+##
+
+X0100
+W jaki sposób kod programu PGP został legalnie "wyeksportowany" z USA?
+wyniesiony do Meksyku za pomocą gołębi pocztowych
+wydrukowany i wywieziony w postaci książki
+wyemitowany przez rozgłośnię radiową umieszczoną przy granicy z Meksykiem
+wysłany pocztą elektroniczną na adres w Szwajcarii
+
+
+##
+
+X0001
+Czego nie wykorzystują współczesne algorytmy szyfrowania?
+operacji mnożenia modulo duża liczba pierwsza (albo coś w tym typie)
+przestawiania
+podstawiania
+operacji dodawania modulo
+
+
+##
+
+X1000
+Która z poniższych cech sama w sobie nie oznacza słabości/wady kryptograficznej funkcji skrótu?
+Wynik funkcji jest liczbą 16-bitową
+Te same dane wejściowe mogą dawać różne dane wynikowe
+Zmiana pojedynczego bitu w danych wejściowych zmienia z reguły 1-2 bity w danych wynikowych
+Różne dane wejściowe mogą dawać ten sam wynik wyjściowy
+
+
+##
+
+X1
+Jak należy rozwinąć skrót 3DES i jakiego typu algorytm się za nim kryje (otwarte pytanie)?
+Triple Data Encryption Standard, algorytm kryptograficzny klucza prywatnego (symetryczny)
+
+
+##
+
+X0001
+Który z poniższych protokołów/programów wykorzystuje SSL/TLS?
+S-HTTP
+PGP
+GPG
+HTTPS
+
+
+##
+
+X01
+Protokoły z rodziny TCP/IP:
+można używać nie na każdym sprzęcie
+można zastosować w sieciach lokalnych i rozległych
+
+
+##
+
+X010
+Protokół transmisji to:
+TP
+TCP
+FIFO
+
+
+##
+
+X01
+Funkcja socketpair() przekazuje:
+dwa deskryptory plików
+dwa deskryptory gniazd
+
+
+##
+
+X10
+Zaznacz zdanie prawdziwe:
+serwer iteracyjny-bezpołączeniowy posiada tylko jedno gniazdko
+serwer iteracyjny-połączeniowy przesyła dane do klienta przez to samo gniazdko, przez które przyjmuje połączenia
+
+
+##
+
+X10
+Zaznacz zdanie prawdziwe:
+serwer współbieżny-połączeniowy tworzy procesy potomne dla każdego zgłoszenia
+serwer iteracyjny-połączeniowy przesyła dane do klienta przez to samo gniazdko, przez które przyjmuje połączenia
+
+
+##
+
+X0100
+W celu zwiększenia szybkości działania, systemy często używają kryptografii asymetrycznej w celu nawiązania połączenia, które następnie jest kontynuowane z użyciem kryptografii symetrycznej wykorzystującej:
+klucz publiczny nadawcy
+tymczasowy klucz sesji
+klucz publiczny odbiorcy
+podpisy cyfrowe
+
+
+##
+
+X0010
+Ile wynosi 8^32 mod 513?
+128
+32
+64
+256
+
+
+##
+
+X1
+Rozwiń skrót PGP (otwarte pytanie):
+Pretty Good Privacy
+
+
+##
+
+X1
+Rozwiń skrót GPG (otwarte pytanie):
+GNU Privacy Guard
+
+
+##
+
+X010
+Wskaż publiczny adres IP:
+10.50.50.10
+172.15.50.10
+192.168.50.10
+
+
+##
+
+X100
+Wskaż publiczny adres IP:
+156.17.9.7
+172.16.50.10
+192.168.50.10
+
+
+##
+
+X0001
+Które rodzaje szyfrów uznawane są za szybsze od pozostałych?
+asymetryczne
+z kluczem publicznym
+wykorzystujące funkcję MD2
+z kluczem prywatnym
+
+
+##
+
+X1
+Rozwiń skrót WCSS (otwarte pytanie):
+Wrocławskie Centrum Sieciowo-Superkomputerowe
+
+
+##
+
+X1
+Jak nazywa się klaster w WCSS (otwarte pytanie):
+BEM
+
+
+##
+
+X1000
+Jeśli wiadomo, że X mod 5 = 2 oraz X mod 7 = 1, oblicz x:
+57
+-17
+52
+8
+
+
+##
+
+X100
+Co wpływa na powolne działanie dysku HDD?
+czas na dotarcie do ścieżki
+opóźnienie obrotowe - czas dotarcia do sektora
+czas transferu danych
+
+
+##
+
+X1
+Gdzie na PWr znajduje się archiwalny system hierarchiczny (otwarte pytanie):
+WCSS
+
+
+##
+
+X1
+Wymień wady dysków SSD (otwarte pytanie):
+ograniczona liczba operacji zapisu, spadek wydajności zapisu przy niewielkiej liczbie wolnych bloków, większy koszt dla takiej samej pojemności niż HDD
+
+
+##
+
+X1
+Sprzętowe zabezpieczenia uwierzytelnienia (otwarte pytanie):
+klucz sprzętowy — autoryzacja na podstawie algorytmu challenge-response z kluczem zapisanym na urządzeniu (ewentualnie przesłanie klucza - mniej bezpieczne)
+
+
+##
+
+X1
+Co można uzyskać dzięki opcji -R programu ssh (otwarte pytanie):
+otwarcie po stronie zdalnej portu TCP (podanego po opcji), z którego ruch jest tunelowany do maszyny lokalnej
+
+
+##
+
+X1
+Co można uzyskać dzięki opcji -L programu ssh (otwarte pytanie):
+otwarcie na maszynie lokalnej portu TCP (podanego po opcji), tunelującego wysyłany na niego ruch do maszyny zdalnej
+
+
+##
+
+X0010
+Na który z poniższych nośników informacji w systemach hierarchicznych zostaną docelowo zmigrowane dawno nieużywane dane?
+dyski HDD
+płyty CD/DVD
+taśmy magnetyczne
+dyski magnetooptyczne
+
+
+##
+
+X0001
+Która z poniższych konfiguracji dysków to 'lustro'?
+RAID 5
+RAID 0
+RAID 2
+RAID 1
+
+
+##
+
+X0010
+Jakie są typowe długości klucza używane w systemach kryptograficznych z kluczem prywatnym?
+4 bajty
+40 bitów
+7-20 bajtów
+1024-2048 bitów
+
+
+##
+
+X1000
+SSl/TLS wprowadza mechanizmy bezpieczeństwa, które można w przezroczysty sposób wykorzystać w programach sieciowych komunikujących się z użyciem...
+TCP
+UDP
+ICMP
+OSPF
+
+
+##
+
+X0010
+Który z systemów RAID zapewni ochronę przed utratą danych w razie awarii dysku przy najmniejszym nadmiarze zużytych w tym celu dysków?
+konkatenacja dysków
+striping
+RAID 1
+RAID 0
+
+
+##
+
+X1000
+Jaką pojemność całkowitą uzyskamy łącząc w macierz RAID 0+1 cztery dyski o pojemności 2 TB każdy?
+4TB
+8TB
+6TB
+2TB
+
+
+##
+
+X0100
+Wszystkie poniższe możliwości są dostępne w programie SSH z wyjątkiem jednej - której?
+Tunelowanie połączeń X11
+Tunelowanie pakietów UDP
+Szyfrowanie połączenia
+Tunelowanie połączeń TCP
+
+
+##
+
+X0010
+Poniższy akapit mówi nieprawdę. Aby to poprawić, wystarczy zmienić jedno słowo lub skrót. W którym wierszu?
+Algorytmy kryptografii z kluczem prywatnym,
+takie jak IDEA, Blowfish, czy DES, są
+znacznie wolniejsze niż algorytmy asymetryczne.
+Dlatego często stosuje się algorytmy hybrydowe, łączące cechy obu metod.
+
+
+##
+
+X0100
+Która z poniższych konfiguracji dysków to 'przeplot'?
+RAID 5
+RAID 0
+RAID 1
+RAID 2
+
+
+##
+
+X0010
+Jednym z kluczowych elementów systemu SSL/TLS są:
+certyfikaty zgodności ISO 9001
+certyfikaty IEEE 822.11
+certyfikaty X.509
+certyfikaty serwerów podpisywane metodą "web of trust"
+
+
+##
+
+X0100
+Który z systemów RAID pozwala na łatwe dokonywanie kopii zapasowych bez zatrzymywania działającego systemu?
+RAID 0
+RAID 1
+RAID 5
+RAID 6
+
+
+##
+
+X1000
+Na który z poniższych nośników informacji w systemach hierarchicznych zostaną zmigrowane często używane dane?
+dyski HDD
+płyty CD/DVD
+taśmy magnetyczne
+dyski magnetooptyczne
+
+
+##
+
+X0110
+W algorytmie szyfrującym zapewniającym poufność doskonałą, każdy szyfrogram:
+jest tej samej długości
+jest nierozróżnialny w czasie wielomianowym od ciągu losowego
+może być zdeszyfrowany do wielu różnych tekstów jawnych
+jest tworzony z użyciem tego samego klucza szyfrującego
+
+
+##
+
+X0100
+Która z poniższych cech może oznaczać niską jakość algorytmu funkcji skrótu kryptograficznego?
+Nie można wygenerować funkcji odwrotnej
+Dwa różne komunikaty generują ten sam wynik funkcji skrótu
+Algorytm funkcji skrótu jest publicznie znany
+Żadna z wymienionych
+
+
+##
+
+X1001
+Sieć Feistla charakteryzuje się tym, że:
+wykorzystywana jest ta sama struktura algorytmu do szyfrowania i deszyfrowania
+wykorzystuje tylko operacje liniowe
+wykorzystuje tylko i wyłącznie funkcje samoodwrotne
+realizuje szyfrowanie i deszyfrowanie w wielu rundach
+
+
+##
+
+X1000
+Zastosowanie adresów RFC1918 w sieci lokalnej i wykorzystanie NAT powoduje, że w pakietach wychodzących z tej sieci zmieniane są:
+adres i port źródłowy
+wyłącznie port źródłowy
+wyłącznie adres docelowy
+adres i port docelowy
+
+
+##
+
+X1000
+Który z wymienionych systemów RAID zapewni ochronę przed utratą danych w razie awarii dysku przy najmniejszym nadmiarze zużytych w tym celu dysków, gdy do wykorzystania mamy 4 jednakowe dyski?
+RAID 5
+RAID 1
+RAID 0
+striping
+
+
+##
+
+X0110
+Szyfrowanie cell-level:
+zapewnia szyfrowanie danych przesyłanych z serwera do klienta
+może wymagać modyfikacji struktury tabel w bazie danych
+wprowadza większy narzut niż szyfrowanie TDE
+nie zapewnia szyfrowania danych w pamięci operacyjnej serwera
+
+
+##
+
+X1010
+Wykorzystanie w bazie danych deterministycznego algorytmu szyfrowania cell-level:
+powoduje, że wykorzystanie indeksów na zaszyfrowanej kolumnie jest bezcelowe
+pozwala na wyszukiwanie konkretnego tekstu jawnego bez konieczności deszyfrowania wszystkich wartości (wierszy)
+wymaga deszyfrowania danych w celu ich prawidłowego posortowania
+pozwala na sortowanie danych bez konieczności ich deszyfrowania
+
+
+##
+
+X0101
+Transparent data encryption:
+zapewnia szyfrowanie danych przesyłanych z serwera do klienta
+zapewnia szyfrowanie danych przechowywanych na dysku serwera
+zapewnia szyfrowanie danych przechowywanych w pamięci operacyjnej serwera
+nie wymaga modyfikacji struktury tabel w bazie danych
+
+
+##
+
+X0010
+Które z poniższych nośników informacji zapewniają najlepszą dostępność do przechowywanych danych i kopii zapasowych?
+płyty CD
+płyty DVD
+systemy hierarchiczne
+taśmy magnetyczne
+
+
+##
+
+X0001
+Który z systemów RAID nie zapewni ochrony przed utratą danych w razie awarii pojedynczego dysku?
+RAID 5
+RAID 0+1
+RAID 1
+RAID 0
+
+
+##
+
+X0001
+Które z poniższych nośników informacji zapewniają najdłuższą trwałość przechowywania danych i kopii zapasowych?
+płyty DVD
+dyski magnetooptyczne
+płyty CD
+taśmy magnetyczne
+
+
+##
+
+X1000
+Które z poniższych odwołań spowoduje skorzystanie z SSL?
+https://zak.ict.pwr.wroc.pl/soi.php
+shttp://zak.ict.pwr.wroc.pl/soi.php
+ssl://zak.ict.pwr.wroc.pl/soi.php
+http://zak.ict.pwr.wroc.pl/soi.php
+
+
+##
+
+X0010
+W jaki sposób w GPG rozwiązano problem autentyczności dystrybuowanych kluczy?
+certyfikaty podpisywane przez Verisign
+"sieć zaufania" użytkowników podpisujących sobie nawzajem klucze prywatne
+"sieć zaufania" użytkowników podpisujących sobie nawzajem klucze publiczne
+certyfikaty podpisywane przez Thawte
+
+
+##
+
+X0010
+AES to:
+system szyfrowania asymetrycznego
+kryptograficzna funkcja skrótu
+system szyfrowania symetrycznego
+następca algorytmu RSA
+
+
+##
+
+X1
+Rozwiń skrót GPG (otwarte pytanie):
+GNU Privacy Guard
+
+
+##
+
+X0010
+Jaką pojemność całkowitą uzyskamy łącząc w macierz RAID 5 cztery dyski o pojemności 4 TB?(Podaj wartość liczbową wyrażoną w TB)
+4
+8
+12
+16
+
+
+##
+
+X0010
+Jaką pojemność całkowitą uzyskamy łącząc w macierz RAID 5 cztery dyski o pojemności 3 TB? (Podaj wartość liczbową wyrażoną w TB)
+3
+6
+9
+12
+
+
+##
+
+X01001
+W strefie zdemilitaryzowanej (DMZ) powinny znajdować się:
+serwery NIS (Network Information Services)
+hosty przesiadkowe służące do logowania do sieci wewnętrznej
+publicznie dostępne serwery usług takich jak WWW czy FTP
+stacje robocze użytkowników
+serwery usług uwierzytelnienia i autoryzacji dostępu
+
+
+##
+
+X0100
+Jaką pojemność całkowitą uzyskamy łącząc w macierz RAID 0+1 cztery dyski o pojemności 1 TB każdy?
+1
+2
+3
+4
+
+
+##
+
+X11000
+Atak urodzinowy...
+atak kryptograficzny
+to na przykład szukanie kolizji algorytmu MD5
+jest często mylony z cross-site scripting
+to atak skierowany na bazy danych
+polega na rozsyłaniu w sieci TCP/IP pakietów z fałszywymi adresami MAC
+
+
+##
+
+X01
+Maskarada działa w pełni i bezproblemowo dla UDP, natomiast dla TCP wymaga stosowania timeotów i specjalnych technik do wykrywania połączeń w celu tworzenia i usuwania wpisów w tablicy NAT
+Prawda
+Fałsz
+
+
+##
+
+X0010
+Diffie-Hellman to algorytm...
+podpisu cyfrowego
+szyfrowania symetrycznego
+bezpiecznej wymiany klucza
+deszyfrowania
+
+
+##
+
+X0010
+Gdy łączymy się z domowego komputera protokołem SSH połączenie zostaje nawiązane, ale jeśli pozostawimy je nieaktywne podczas gdy czytamy pocztę, to po kilku minutach zostaje zerwane. Co może być tego przyczyną?
+firewall bezstanowy blokujący połączenia zwrotne
+firewall bezstanowy filtrujący pakiety ICMP
+problemy z ustawieniami NAT
+używanie niewłaściwych adresów po wewnętrznej stronie maskarady
+
+
+##
+
+X0100
+Który z podanych adresów IP nie powinien znaleźć się poza NATem?
+156.17.42.69
+192.168.1.10
+91.121.184.99
+87.105.34.155
+
+
+##

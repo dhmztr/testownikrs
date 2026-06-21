@@ -2,9 +2,10 @@ use crate::gui::styles::{
     success_container_style, error_container_style, answer_option_style,
     correct_answer_style, incorrect_answer_style, background_style, surface_style,
     header_style, progress_bar_bg_style, progress_bar_fill_style, badge_style,
-    letter_badge_style, Colors,
+    letter_badge_style, session_card_style, Colors,
 };
 use crate::gui::Message;
+use crate::gui::main_menu::stepper_row;
 use testownik_rs::models::{AppSettings, QuestionType, QuizSession, SessionQuestion, Theme};
 use testownik_rs::types::{AnswerContent, AnswerType, ContentPart, QuestionContent};
 use testownik_rs::utils;
@@ -29,6 +30,7 @@ pub struct QuizState {
     pub image_base_dir: PathBuf,
     // ponytail: defer session.update_question until next_question so current_question() does not jump after submit when reps hit 0
     pub pending_submission: Option<(String, bool)>,
+    pub show_settings: bool,
 }
 
 impl QuizState {
@@ -49,6 +51,7 @@ impl QuizState {
             randomized_answer_indices: randomized_indices,
             image_base_dir,
             pending_submission: None,
+            show_settings: false,
         }
     }
 
@@ -187,8 +190,8 @@ impl QuizState {
             header,
             vertical_space().height(16),
             question_card,
-            feedback,
             answers_section,
+            feedback,
             action_buttons,
         ]
         .width(Length::Fill)
@@ -232,8 +235,15 @@ impl QuizState {
         .padding([4, 10])
         .style(badge_style(is_dark));
 
-        // Progress percentage
-        let progress_text = text(format!("{:.0}%", self.session.progress_percentage()))
+        // Progress percentage + finished/total questions
+        let total_q = self.session.questions.len();
+        let finished_q = self.session.questions.iter().filter(|q| q.repetitions_remaining == 0).count();
+        let progress_text = text(format!(
+            "{}/{} ukończone • {:.0}%",
+            finished_q,
+            total_q,
+            self.session.progress_percentage()
+        ))
             .size(16)
             .style(Colors::PRIMARY);
 
@@ -331,7 +341,7 @@ impl QuizState {
             let (icon, message) = if is_correct {
                 ("✅", "Poprawnie! Świetna robota!")
             } else {
-                ("❌", "Niepoprawnie. Prawidłowa odpowiedź jest podświetlona poniżej.")
+                ("❌", "Niepoprawnie. Prawidłowa odpowiedź jest podświetlona powyżej.")
             };
 
             let inner_container = if is_correct {
@@ -558,20 +568,56 @@ impl QuizState {
         .on_press(Message::SaveAndExit)
         .padding([14, 20])
         .style(ButtonTheme::Secondary);
-        
+
+        let settings_btn = button(
+            row![
+                text("⚙️").font(EMOJI_FONT).size(14),
+                horizontal_space().width(6),
+                text("Ustawienia").size(14),
+            ]
+            .align_items(Alignment::Center)
+        )
+        .on_press(Message::ToggleQuizSettingsPanel)
+        .padding([14, 16])
+        .style(ButtonTheme::Secondary);
+
+        let copy_btn = button(
+            row![
+                text("📋").font(EMOJI_FONT).size(14),
+                horizontal_space().width(6),
+                text("Kopiuj pytanie").size(14),
+            ]
+            .align_items(Alignment::Center)
+        )
+        .on_press(Message::CopyText(self.question_copy_text()))
+        .padding([14, 16])
+        .style(ButtonTheme::Secondary);
+
         // Keyboard shortcuts help text
         let shortcuts_text = text("⌨️ 1-9: Wybierz • Spacja: Zatwierdź/Dalej").font(EMOJI_FONT)
             .size(12)
             .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
 
+        let settings_panel: Element<'_, Message> = if self.show_settings {
+            self.create_settings_panel(is_dark)
+        } else {
+            vertical_space().height(0).into()
+        };
+
         column![
+            settings_panel,
             container(
                 row![
                     exit_btn,
+                    horizontal_space().width(8),
+                    settings_btn,
+                    horizontal_space().width(8),
+                    copy_btn,
                     horizontal_space(),
                     primary_btn,
                 ]
                 .padding([20, 28])
+                .align_items(Alignment::Center)
             )
             .width(Length::Fill),
             container(shortcuts_text)
@@ -581,6 +627,119 @@ impl QuizState {
         ]
         .width(Length::Fill)
         .into()
+    }
+
+    fn question_copy_text(&self) -> String {
+        let Some(q) = self.session.current_question() else {
+            return String::new();
+        };
+        let mut out = String::new();
+        match &q.question.content {
+            QuestionContent::Text(t) => out.push_str(t),
+            QuestionContent::Image(p) => out.push_str(p),
+            QuestionContent::Select(parts) => {
+                for part in parts {
+                    match part {
+                        ContentPart::Text(t) => out.push_str(t),
+                        ContentPart::SelectPlaceholder { select_id, visible_content } => {
+                            if visible_content.is_empty() {
+                                out.push_str(&format!("[Wybór {}]", select_id + 1));
+                            } else {
+                                out.push_str(visible_content);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Append answers so user can paste full question
+        out.push_str("\n\n");
+        for (i, a) in q.question.answers.iter().enumerate() {
+            let prefix = format!("{}. ", i + 1);
+            match &a.content {
+                AnswerContent::Single { content } => out.push_str(&format!("{prefix}{content}\n")),
+                AnswerContent::Select { options, .. } => {
+                    out.push_str(&prefix);
+                    for opt in options {
+                        out.push_str(&format!("[{}] ", opt.content));
+                    }
+                    out.push('\n');
+                }
+            }
+        }
+        out
+    }
+
+    fn create_settings_panel(&self, is_dark: bool) -> Element<'_, Message> {
+        let rs = &self.session.settings;
+        let title = text("⚙️ Ustawienia powtórzeń (ten quiz)")
+            .font(EMOJI_FONT)
+            .size(16)
+            .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT });
+
+        let close_btn = button(text("Zamknij").size(13))
+            .on_press(Message::ToggleQuizSettingsPanel)
+            .padding([8, 14])
+            .style(ButtonTheme::Secondary);
+
+        let reset_btn = button(text("Reset").size(13))
+            .on_press(Message::ResetRepetitionSettings)
+            .padding([8, 14])
+            .style(ButtonTheme::Destructive);
+
+        let header_row = row![title, horizontal_space(), reset_btn, horizontal_space().width(8), close_btn]
+            .align_items(Alignment::Center);
+
+        let initial = stepper_row(
+            "Początkowe powtórzenia",
+            "Ile razy każde pytanie pojawi się na początku",
+            rs.initial_repetitions,
+            Message::SetInitialRepetitions(rs.initial_repetitions - 1),
+            Message::SetInitialRepetitions(rs.initial_repetitions + 1),
+            is_dark,
+        );
+        let correct = stepper_row(
+            "Za poprawną odpowiedź (−)",
+            "O ile zmniejszyć licznik po poprawnej odpowiedzi",
+            rs.correct_decrease,
+            Message::SetCorrectDecrease(rs.correct_decrease - 1),
+            Message::SetCorrectDecrease(rs.correct_decrease + 1),
+            is_dark,
+        );
+        let incorrect = stepper_row(
+            "Kara za błędną odpowiedź (+)",
+            "O ile zwiększyć licznik po błędnej odpowiedzi",
+            rs.incorrect_increase,
+            Message::SetIncorrectIncrease(rs.incorrect_increase - 1),
+            Message::SetIncorrectIncrease(rs.incorrect_increase + 1),
+            is_dark,
+        );
+        let max = stepper_row(
+            "Maksymalna liczba powtórzeń",
+            "Górny limit licznika powtórzeń",
+            rs.max_repetitions,
+            Message::SetMaxRepetitions(rs.max_repetitions - 1),
+            Message::SetMaxRepetitions(rs.max_repetitions + 1),
+            is_dark,
+        );
+
+        let panel = column![
+            header_row,
+            vertical_space().height(10),
+            initial,
+            vertical_space().height(6),
+            correct,
+            vertical_space().height(6),
+            incorrect,
+            vertical_space().height(6),
+            max,
+        ]
+        .width(Length::Fill);
+
+        container(container(panel).padding(16).style(session_card_style(is_dark)).width(Length::Fill))
+            .padding([8, 28])
+            .width(Length::Fill)
+            .into()
     }
 
     fn view_completion(&self, is_dark: bool) -> Element<'_, Message> {

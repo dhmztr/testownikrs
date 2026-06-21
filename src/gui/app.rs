@@ -55,6 +55,12 @@ pub enum Message {
     // Keyboard input
     SelectAnswerByNumber(usize),
     SpacePressed,
+
+    // Copy question text to clipboard
+    CopyText(String),
+
+    // Toggle quiz-specific settings panel
+    ToggleQuizSettingsPanel,
     
     // Completion
     CompleteQuiz,
@@ -179,35 +185,80 @@ impl Application for TestownikApp {
                 Command::none()
             }
 
+            Message::ToggleQuizSettingsPanel => {
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    state.show_settings = !state.show_settings;
+                }
+                Command::none()
+            }
+
+            Message::CopyText(s) => iced::clipboard::write(s),
+
             Message::SetInitialRepetitions(v) => {
-                self.settings.repetition_settings.initial_repetitions =
-                    v.clamp(1, self.settings.repetition_settings.max_repetitions);
-                let _ = self.storage.save_settings(&self.settings);
+                // ponytail: Quiz screen edits this session's settings; MainMenu edits global defaults
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    let clamped = v.clamp(1, state.session.settings.max_repetitions);
+                    let old_initial = state.session.settings.initial_repetitions;
+                    state.session.settings.initial_repetitions = clamped;
+                    let delta = clamped - old_initial;
+                    if delta != 0 {
+                        for q in state.session.questions.iter_mut() {
+                            q.repetitions_remaining =
+                                (q.repetitions_remaining + delta).max(0).min(state.session.settings.max_repetitions);
+                        }
+                    }
+                    let _ = self.storage.save_session(&state.session);
+                } else {
+                    self.settings.repetition_settings.initial_repetitions =
+                        v.clamp(1, self.settings.repetition_settings.max_repetitions);
+                    let _ = self.storage.save_settings(&self.settings);
+                }
                 Command::none()
             }
 
             Message::SetCorrectDecrease(v) => {
-                self.settings.repetition_settings.correct_decrease = v.clamp(1, 10);
-                let _ = self.storage.save_settings(&self.settings);
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    state.session.settings.correct_decrease = v.clamp(1, 10);
+                    let _ = self.storage.save_session(&state.session);
+                } else {
+                    self.settings.repetition_settings.correct_decrease = v.clamp(1, 10);
+                    let _ = self.storage.save_settings(&self.settings);
+                }
                 Command::none()
             }
 
             Message::SetIncorrectIncrease(v) => {
-                self.settings.repetition_settings.incorrect_increase = v.clamp(0, 20);
-                let _ = self.storage.save_settings(&self.settings);
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    state.session.settings.incorrect_increase = v.clamp(0, 20);
+                    let _ = self.storage.save_session(&state.session);
+                } else {
+                    self.settings.repetition_settings.incorrect_increase = v.clamp(0, 20);
+                    let _ = self.storage.save_settings(&self.settings);
+                }
                 Command::none()
             }
 
             Message::SetMaxRepetitions(v) => {
-                let min = self.settings.repetition_settings.initial_repetitions.max(1);
-                self.settings.repetition_settings.max_repetitions = v.clamp(min, 50);
-                let _ = self.storage.save_settings(&self.settings);
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    let min = state.session.settings.initial_repetitions.max(1);
+                    state.session.settings.max_repetitions = v.clamp(min, 50);
+                    let _ = self.storage.save_session(&state.session);
+                } else {
+                    let min = self.settings.repetition_settings.initial_repetitions.max(1);
+                    self.settings.repetition_settings.max_repetitions = v.clamp(min, 50);
+                    let _ = self.storage.save_settings(&self.settings);
+                }
                 Command::none()
             }
 
             Message::ResetRepetitionSettings => {
-                self.settings.repetition_settings = RepetitionSettings::default();
-                let _ = self.storage.save_settings(&self.settings);
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    state.session.settings = RepetitionSettings::default();
+                    let _ = self.storage.save_session(&state.session);
+                } else {
+                    self.settings.repetition_settings = RepetitionSettings::default();
+                    let _ = self.storage.save_settings(&self.settings);
+                }
                 Command::none()
             }
             
