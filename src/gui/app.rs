@@ -1,5 +1,5 @@
 use crate::gui::{MainMenuState, QuizState, CompletionState};
-use testownik_rs::models::{AppSettings, Theme};
+use testownik_rs::models::{AppSettings, RepetitionSettings, Theme};
 use testownik_rs::types::QuestionType;
 use testownik_rs::persistence::Storage;
 use iced::{window, Application, Command, Element, Font, Settings as IcedSettings, Size};
@@ -38,6 +38,12 @@ pub enum Message {
     DeleteSession(String),
     ToggleTheme,
     UpdateSettings(AppSettings),
+    ToggleSettingsPanel,
+    SetInitialRepetitions(i32),
+    SetCorrectDecrease(i32),
+    SetIncorrectIncrease(i32),
+    SetMaxRepetitions(i32),
+    ResetRepetitionSettings,
     
     // Quiz messages
     SelectAnswer(usize),
@@ -162,6 +168,45 @@ impl Application for TestownikApp {
             
             Message::UpdateSettings(new_settings) => {
                 self.settings = new_settings;
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::ToggleSettingsPanel => {
+                if let Screen::MainMenu(ref mut state) = self.screen {
+                    state.show_settings = !state.show_settings;
+                }
+                Command::none()
+            }
+
+            Message::SetInitialRepetitions(v) => {
+                self.settings.repetition_settings.initial_repetitions =
+                    v.clamp(1, self.settings.repetition_settings.max_repetitions);
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::SetCorrectDecrease(v) => {
+                self.settings.repetition_settings.correct_decrease = v.clamp(1, 10);
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::SetIncorrectIncrease(v) => {
+                self.settings.repetition_settings.incorrect_increase = v.clamp(0, 20);
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::SetMaxRepetitions(v) => {
+                let min = self.settings.repetition_settings.initial_repetitions.max(1);
+                self.settings.repetition_settings.max_repetitions = v.clamp(min, 50);
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::ResetRepetitionSettings => {
+                self.settings.repetition_settings = RepetitionSettings::default();
                 let _ = self.storage.save_settings(&self.settings);
                 Command::none()
             }

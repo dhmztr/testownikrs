@@ -9,7 +9,7 @@ use testownik_rs::models::{AppSettings, QuestionType, QuizSession, SessionQuesti
 use testownik_rs::types::{AnswerContent, AnswerType, ContentPart, QuestionContent};
 use testownik_rs::utils;
 use iced::widget::{button, column, container, horizontal_space, image as img_widget, pick_list, row, scrollable, text, vertical_space, Column, Space};
-use iced::{Alignment, Font, Element, Length};
+use iced::{Alignment, ContentFit, Font, Element, Length};
 use iced::theme::{Button as ButtonTheme};
 use std::path::{Path, PathBuf};
 
@@ -27,6 +27,8 @@ pub struct QuizState {
     pub is_correct: Option<bool>,
     pub randomized_answer_indices: Vec<usize>,
     pub image_base_dir: PathBuf,
+    // ponytail: defer session.update_question until next_question so current_question() does not jump after submit when reps hit 0
+    pub pending_submission: Option<(String, bool)>,
 }
 
 impl QuizState {
@@ -46,6 +48,7 @@ impl QuizState {
             is_correct: None,
             randomized_answer_indices: randomized_indices,
             image_base_dir,
+            pending_submission: None,
         }
     }
 
@@ -117,11 +120,14 @@ impl QuizState {
         self.is_correct = Some(is_correct);
         self.answer_submitted = true;
 
-        // Update the session
-        self.session.update_question(&question_tag, is_correct);
+        // ponytail: defer session update until advance so current_question stays put while feedback shows
+        self.pending_submission = Some((question_tag, is_correct));
     }
 
     pub fn next_question(&mut self) {
+        if let Some((tag, is_correct)) = self.pending_submission.take() {
+            self.session.update_question(&tag, is_correct);
+        }
         self.session.next_question();
         self.selected_answers.clear();
         self.answer_submitted = false;
@@ -262,31 +268,22 @@ impl QuizState {
     }
 
     fn create_question_card(&self, current_q: &SessionQuestion, is_dark: bool) -> Element<'_, Message> {
+        let text_color = if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT };
+
         let question_body: Element<'_, Message> = match &current_q.question.content {
             QuestionContent::Text(t) => {
-                // Text may contain embedded [img]...[/img] tags appended by the parser
-                let mut col = Column::new().spacing(8);
-                for line in t.split('\n') {
-                    if line.starts_with("[img]") && line.ends_with("[/img]") {
-                        let path = &line["[img]".len()..line.len() - "[/img]".len()];
-                        col = col.push(
-                            img_widget(resolve_image_path(&self.image_base_dir, path))
-                                .width(Length::Fill),
-                        );
-                    } else if !line.is_empty() {
-                        col = col.push(
-                            text(line)
-                                .size(20)
-                                .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
-                        );
+                let mut col = Column::new().spacing(12);
+                for raw_line in t.split('\n') {
+                    let line = raw_line.trim();
+                    if line.is_empty() {
+                        continue;
                     }
+                    col = push_text_with_images(&self.image_base_dir, col, line, text_color);
                 }
                 col.into()
             }
             QuestionContent::Image(path) => {
-                img_widget(resolve_image_path(&self.image_base_dir, path))
-                    .width(Length::Fill)
-                    .into()
+                image_element(&self.image_base_dir, path.trim())
             }
             QuestionContent::Select(parts) => {
                 let mut content = String::new();
@@ -400,9 +397,11 @@ impl QuizState {
 
                         let answer_content: Element<'_, Message> = match answer.answer_type {
                             AnswerType::Image => img_widget(
-                                resolve_image_path(&self.image_base_dir, &answer_text)
+                                resolve_image_path(&self.image_base_dir, answer_text.trim())
                             )
                             .width(Length::Fixed(200.0))
+                            .height(Length::Fixed(140.0))
+                            .content_fit(ContentFit::Contain)
                             .into(),
                             AnswerType::Text => text(&answer_text)
                                 .size(16)
@@ -639,6 +638,61 @@ impl QuizState {
             .style(background_style(is_dark))
             .into()
     }
+}
+
+/// Scans `line` for `[img]...[/img]` markers and appends the text segments and
+/// image widgets to `col` in source order, so images always render directly
+/// under the surrounding question text (also handles tags inline with text).
+fn push_text_with_images<'a>(
+    base_dir: &Path,
+    mut col: Column<'a, Message>,
+    line: &str,
+    text_color: iced::Color,
+) -> Column<'a, Message> {
+    let mut rest = line;
+    loop {
+        let Some(open) = rest.find("[img]") else {
+            let tail = rest.trim();
+            if !tail.is_empty() {
+                col = col.push(text(tail.to_string()).size(20).style(text_color));
+            }
+            return col;
+        };
+
+        let pre = rest[..open].trim();
+        if !pre.is_empty() {
+            col = col.push(text(pre.to_string()).size(20).style(text_color));
+        }
+
+        let after_open = &rest[open + "[img]".len()..];
+        let Some(close) = after_open.find("[/img]") else {
+            let tail = rest[open..].trim();
+            if !tail.is_empty() {
+                col = col.push(text(tail.to_string()).size(20).style(text_color));
+            }
+            return col;
+        };
+
+        let img_path = after_open[..close].trim();
+        if !img_path.is_empty() {
+            col = col.push(image_element(base_dir, img_path));
+        }
+        rest = &after_open[close + "[/img]".len()..];
+    }
+}
+
+/// Wraps the image in a centered, height-constrained container so it scales
+/// sensibly and stays visible inside the question card.
+fn image_element(base_dir: &Path, img_path: &str) -> Element<'static, Message> {
+    container(
+        img_widget(resolve_image_path(base_dir, img_path))
+            .width(Length::Fill)
+            .height(Length::Fixed(280.0))
+            .content_fit(ContentFit::Contain),
+    )
+    .width(Length::Fill)
+    .center_x()
+    .into()
 }
 
 /// Resolves an image filename to a full path.

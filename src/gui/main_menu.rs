@@ -288,6 +288,10 @@ impl MainMenuState {
     }
 
     fn create_settings_footer(&self, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
+        if self.show_settings {
+            return self.create_settings_panel(settings, is_dark);
+        }
+
         let settings_text = text(format!(
             "⚙️ Powtórzenia: {} początkowe • -{} za poprawną • +{} za błędną • {} maks.",
             settings.repetition_settings.initial_repetitions,
@@ -299,17 +303,139 @@ impl MainMenuState {
         .size(12)
         .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
 
+        let edit_btn = button(text("Edytuj").size(12))
+            .on_press(Message::ToggleSettingsPanel)
+            .padding([6, 12])
+            .style(ButtonTheme::Secondary);
+
         container(
             row![
                 horizontal_space(),
                 settings_text,
+                horizontal_space().width(12),
+                edit_btn,
                 horizontal_space(),
             ]
+            .align_items(Alignment::Center)
         )
         .padding([16, 28])
         .width(Length::Fill)
         .into()
     }
+
+    fn create_settings_panel(&self, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
+        let rs = &settings.repetition_settings;
+
+        let title = text("⚙️ Ustawienia powtórzeń")
+            .font(EMOJI_FONT)
+            .size(18)
+            .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT });
+
+        let close_btn = button(text("Zamknij").size(13))
+            .on_press(Message::ToggleSettingsPanel)
+            .padding([8, 14])
+            .style(ButtonTheme::Secondary);
+
+        let reset_btn = button(text("Reset").size(13))
+            .on_press(Message::ResetRepetitionSettings)
+            .padding([8, 14])
+            .style(ButtonTheme::Destructive);
+
+        let header_row = row![title, horizontal_space(), reset_btn, horizontal_space().width(8), close_btn]
+            .align_items(Alignment::Center);
+
+        let initial = stepper_row(
+            "Początkowe powtórzenia",
+            "Ile razy każde pytanie pojawi się na początku",
+            rs.initial_repetitions,
+            Message::SetInitialRepetitions(rs.initial_repetitions - 1),
+            Message::SetInitialRepetitions(rs.initial_repetitions + 1),
+            is_dark,
+        );
+
+        let correct = stepper_row(
+            "Za poprawną odpowiedź (−)",
+            "O ile zmniejszyć licznik po poprawnej odpowiedzi",
+            rs.correct_decrease,
+            Message::SetCorrectDecrease(rs.correct_decrease - 1),
+            Message::SetCorrectDecrease(rs.correct_decrease + 1),
+            is_dark,
+        );
+
+        let incorrect = stepper_row(
+            "Kara za błędną odpowiedź (+)",
+            "O ile zwiększyć licznik po błędnej odpowiedzi",
+            rs.incorrect_increase,
+            Message::SetIncorrectIncrease(rs.incorrect_increase - 1),
+            Message::SetIncorrectIncrease(rs.incorrect_increase + 1),
+            is_dark,
+        );
+
+        let max = stepper_row(
+            "Maksymalna liczba powtórzeń",
+            "Górny limit licznika powtórzeń",
+            rs.max_repetitions,
+            Message::SetMaxRepetitions(rs.max_repetitions - 1),
+            Message::SetMaxRepetitions(rs.max_repetitions + 1),
+            is_dark,
+        );
+
+        let panel = column![
+            header_row,
+            vertical_space().height(12),
+            initial,
+            vertical_space().height(8),
+            correct,
+            vertical_space().height(8),
+            incorrect,
+            vertical_space().height(8),
+            max,
+        ]
+        .width(Length::Fill);
+
+        container(container(panel).padding(20).style(session_card_style(is_dark)).width(Length::Fill))
+            .padding([16, 28])
+            .width(Length::Fill)
+            .into()
+    }
+}
+
+fn stepper_row<'a>(
+    label: &'a str,
+    hint: &'a str,
+    value: i32,
+    on_minus: Message,
+    on_plus: Message,
+    is_dark: bool,
+) -> Element<'a, Message> {
+    let label_text = text(label)
+        .size(14)
+        .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT });
+    let hint_text = text(hint)
+        .size(11)
+        .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
+
+    let minus = button(text("−").size(18))
+        .on_press(on_minus)
+        .padding([4, 14])
+        .style(ButtonTheme::Secondary);
+    let plus = button(text("+").size(18))
+        .on_press(on_plus)
+        .padding([4, 14])
+        .style(ButtonTheme::Secondary);
+    let value_text = text(format!("{}", value))
+        .size(16)
+        .style(Colors::PRIMARY);
+
+    let stepper = row![minus, horizontal_space().width(12), value_text, horizontal_space().width(12), plus]
+        .align_items(Alignment::Center);
+
+    row![
+        column![label_text, hint_text].spacing(2).width(Length::Fill),
+        stepper,
+    ]
+    .align_items(Alignment::Center)
+    .into()
 }
 
 impl Default for MainMenuState {
