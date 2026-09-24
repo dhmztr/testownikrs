@@ -23,6 +23,12 @@ pub struct QuizSession {
     pub created_at: DateTime<Utc>,
     /// When this session was last updated
     pub updated_at: DateTime<Utc>,
+    /// Number of consecutive correct answers (hot streak counter)
+    #[serde(default)]
+    pub current_streak: u32,
+    /// Longest streak of consecutive correct answers in this session
+    #[serde(default)]
+    pub best_streak: u32,
     /// Transient flag: true if the current question was just mastered (not serialized)
     #[serde(skip, default)]
     pub current_question_just_mastered: bool,
@@ -53,7 +59,21 @@ impl QuizSession {
             settings,
             created_at: now,
             updated_at: now,
+            current_streak: 0,
+            best_streak: 0,
             current_question_just_mastered: false,
+        }
+    }
+
+    /// Update the streak counters after an answer.
+    /// Returns the length of the streak that was broken (0 if none was broken).
+    pub fn record_streak(&mut self, is_correct: bool) -> u32 {
+        if is_correct {
+            self.current_streak += 1;
+            self.best_streak = self.best_streak.max(self.current_streak);
+            0
+        } else {
+            std::mem::take(&mut self.current_streak)
         }
     }
 
@@ -177,6 +197,8 @@ pub struct SessionMetadata {
     pub active_count: usize,
     pub total_count: usize,
     pub updated_at: DateTime<Utc>,
+    #[serde(default)]
+    pub best_streak: u32,
 }
 
 impl From<&QuizSession> for SessionMetadata {
@@ -188,6 +210,7 @@ impl From<&QuizSession> for SessionMetadata {
             active_count: session.active_count(),
             total_count: session.questions.len(),
             updated_at: session.updated_at,
+            best_streak: session.best_streak,
         }
     }
 }

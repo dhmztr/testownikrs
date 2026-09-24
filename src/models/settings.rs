@@ -37,11 +37,34 @@ impl Default for Theme {
     }
 }
 
+/// Default number of consecutive correct answers needed to show the hot streak
+pub const DEFAULT_HOT_STREAK_THRESHOLD: u32 = 3;
+/// Allowed range for the hot streak threshold
+pub const MIN_HOT_STREAK_THRESHOLD: u32 = 2;
+pub const MAX_HOT_STREAK_THRESHOLD: u32 = 50;
+
 /// Global application settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct AppSettings {
     pub theme: Theme,
     pub repetition_settings: RepetitionSettings,
+    /// Whether the hot streak indicator is shown
+    pub hot_streak_enabled: bool,
+    /// How many consecutive correct answers are needed to show the hot streak
+    pub hot_streak_threshold: u32,
+}
+
+impl AppSettings {
+    /// Hot streak level for a given streak: 0 = none, 1 = hot, 2 = hotter, 3+ = on fire.
+    /// Each level is reached after another `hot_streak_threshold` correct answers.
+    pub fn hot_streak_level(&self, streak: u32) -> u32 {
+        if !self.hot_streak_enabled {
+            return 0;
+        }
+        let threshold = self.hot_streak_threshold.max(MIN_HOT_STREAK_THRESHOLD);
+        (streak / threshold).min(3)
+    }
 }
 
 impl Default for AppSettings {
@@ -49,6 +72,8 @@ impl Default for AppSettings {
         Self {
             theme: Theme::default(),
             repetition_settings: RepetitionSettings::default(),
+            hot_streak_enabled: true,
+            hot_streak_threshold: DEFAULT_HOT_STREAK_THRESHOLD,
         }
     }
 }

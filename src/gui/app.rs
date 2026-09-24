@@ -1,5 +1,8 @@
 use crate::gui::{MainMenuState, QuizState, CompletionState};
-use testownik_rs::models::{AppSettings, RepetitionSettings, Theme};
+use testownik_rs::models::{
+    AppSettings, QuizSession, RepetitionSettings, Theme, MAX_HOT_STREAK_THRESHOLD,
+    MIN_HOT_STREAK_THRESHOLD,
+};
 use testownik_rs::types::QuestionType;
 use testownik_rs::persistence::Storage;
 use iced::{window, Application, Command, Element, Font, Settings as IcedSettings, Size};
@@ -44,6 +47,9 @@ pub enum Message {
     SetIncorrectIncrease(i32),
     SetMaxRepetitions(i32),
     ResetRepetitionSettings,
+    ToggleHotStreak,
+    SetHotStreakThreshold(i32),
+    DismissError,
     
     // Quiz messages
     SelectAnswer(usize),
@@ -74,17 +80,23 @@ impl Application for TestownikApp {
     type Executor = iced::executor::Default;
     type Message = Message;
     type Theme = iced::Theme;
-    type Flags = ();
+    /// Optional path of a quiz file to open right away (first CLI argument)
+    type Flags = Option<String>;
 
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+    fn new(quiz_path: Self::Flags) -> (Self, Command<Self::Message>) {
         let storage = Storage::new().expect("Failed to create storage");
         let settings = storage.load_settings().unwrap_or_default();
 
-        let app = Self {
+        let screen = Screen::MainMenu(MainMenuState::load(&storage));
+        let mut app = Self {
             storage,
             settings,
-            screen: Screen::MainMenu(MainMenuState::new()),
+            screen,
         };
+
+        if let Some(path) = quiz_path {
+            app.load_quiz_from_file(&path);
+        }
 
         (app, Command::none())
     }
@@ -109,7 +121,27 @@ impl Application for TestownikApp {
             }
             
             Message::BackToMenu => {
-                self.screen = Screen::MainMenu(MainMenuState::new());
+                self.go_to_menu();
+                Command::none()
+            }
+
+            Message::ToggleHotStreak => {
+                self.settings.hot_streak_enabled = !self.settings.hot_streak_enabled;
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::SetHotStreakThreshold(v) => {
+                self.settings.hot_streak_threshold = (v.max(0) as u32)
+                    .clamp(MIN_HOT_STREAK_THRESHOLD, MAX_HOT_STREAK_THRESHOLD);
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::DismissError => {
+                if let Screen::MainMenu(ref mut state) = self.screen {
+                    state.error = None;
+                }
                 Command::none()
             }
             
@@ -154,12 +186,17 @@ impl Application for TestownikApp {
             }
             
             Message::LoadSession(session_id) => {
-                if let Ok(session) = self.storage.load_session(&session_id) {
-                    let image_base_dir = session.quiz_path
-                        .parent()
-                        .map(|p| p.to_path_buf())
-                        .unwrap_or_else(|| PathBuf::from("."));
-                    self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
+                match self.storage.load_session(&session_id) {
+                    Ok(session) => {
+                        let image_base_dir = image_base_dir(&session);
+                        self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
+                    }
+                    Err(e) => {
+                        self.screen = Screen::MainMenu(MainMenuState::with_error(
+                            &self.storage,
+                            format!("Nie udało się wczytać sesji: {e:#}"),
+                        ));
+                    }
                 }
                 Command::none()
             }
@@ -197,14 +234,19 @@ impl Application for TestownikApp {
             Message::SetInitialRepetitions(v) => {
                 // ponytail: Quiz screen edits this session's settings; MainMenu edits global defaults
                 if let Screen::Quiz(ref mut state) = self.screen {
-                    let clamped = v.clamp(1, state.session.settings.max_repetitions);
+                    let max = state.session.settings.max_repetitions;
+                    let clamped = v.clamp(1, max);
                     let old_initial = state.session.settings.initial_repetitions;
                     state.session.settings.initial_repetitions = clamped;
                     let delta = clamped - old_initial;
                     if delta != 0 {
+                        // Only questions still in play are adjusted: mastered ones stay
+                        // mastered and active ones never silently drop out of the quiz
+                        // (that would shift the current question under the user)
                         for q in state.session.questions.iter_mut() {
-                            q.repetitions_remaining =
-                                (q.repetitions_remaining + delta).max(0).min(state.session.settings.max_repetitions);
+                            if q.repetitions_remaining > 0 {
+                                q.repetitions_remaining = (q.repetitions_remaining + delta).clamp(1, max);
+                            }
                         }
                     }
                     let _ = self.storage.save_session(&state.session);
@@ -241,7 +283,11 @@ impl Application for TestownikApp {
             Message::SetMaxRepetitions(v) => {
                 if let Screen::Quiz(ref mut state) = self.screen {
                     let min = state.session.settings.initial_repetitions.max(1);
-                    state.session.settings.max_repetitions = v.clamp(min, 50);
+                    let max = v.clamp(min, 50);
+                    state.session.settings.max_repetitions = max;
+                    for q in state.session.questions.iter_mut() {
+                        q.repetitions_remaining = q.repetitions_remaining.min(max);
+                    }
                     let _ = self.storage.save_session(&state.session);
                 } else {
                     let min = self.settings.repetition_settings.initial_repetitions.max(1);
@@ -253,7 +299,11 @@ impl Application for TestownikApp {
 
             Message::ResetRepetitionSettings => {
                 if let Screen::Quiz(ref mut state) = self.screen {
-                    state.session.settings = RepetitionSettings::default();
+                    let defaults = RepetitionSettings::default();
+                    for q in state.session.questions.iter_mut() {
+                        q.repetitions_remaining = q.repetitions_remaining.min(defaults.max_repetitions);
+                    }
+                    state.session.settings = defaults;
                     let _ = self.storage.save_session(&state.session);
                 } else {
                     self.settings.repetition_settings = RepetitionSettings::default();
@@ -277,31 +327,24 @@ impl Application for TestownikApp {
             }
             
             Message::SubmitAnswer => {
-                if let Screen::Quiz(ref mut state) = self.screen {
-                    state.submit_answer();
-                    let _ = self.storage.save_session(&state.session);
-                }
+                self.submit_answer();
                 Command::none()
             }
             
             Message::NextQuestion => {
-                if let Screen::Quiz(ref mut state) = self.screen {
-                    state.next_question();
-                    let _ = self.storage.save_session(&state.session);
-                    
-                    // Check if quiz is complete
-                    if state.session.is_complete() {
-                        self.screen = Screen::CompletionScreen(CompletionState::new(state.session.clone()));
-                    }
-                }
+                self.advance_question();
                 Command::none()
             }
             
             Message::SaveAndExit => {
-                if let Screen::Quiz(ref state) = self.screen {
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    // An answer that was checked but not yet applied must not be lost
+                    if state.pending_submission.is_some() {
+                        state.next_question();
+                    }
                     let _ = self.storage.save_session(&state.session);
                 }
-                self.screen = Screen::MainMenu(MainMenuState::new());
+                self.go_to_menu();
                 Command::none()
             }
             
@@ -321,20 +364,10 @@ impl Application for TestownikApp {
             }
             
             Message::SpacePressed => {
-                if let Screen::Quiz(ref mut state) = self.screen {
-                    if state.answer_submitted {
-                        // Space pressed after submission = next question
-                        state.next_question();
-                        let _ = self.storage.save_session(&state.session);
-                        
-                        if state.session.is_complete() {
-                            self.screen = Screen::CompletionScreen(CompletionState::new(state.session.clone()));
-                        }
-                    } else {
-                        // Space pressed before submission = submit answer
-                        state.submit_answer();
-                        let _ = self.storage.save_session(&state.session);
-                    }
+                match self.screen {
+                    Screen::Quiz(ref state) if state.answer_submitted => self.advance_question(),
+                    Screen::Quiz(_) => self.submit_answer(),
+                    _ => {}
                 }
                 Command::none()
             }
@@ -344,7 +377,7 @@ impl Application for TestownikApp {
                     // Delete the completed session
                     let _ = self.storage.delete_session(&state.session.id);
                 }
-                self.screen = Screen::MainMenu(MainMenuState::new());
+                self.go_to_menu();
                 Command::none()
             }
             
@@ -352,9 +385,9 @@ impl Application for TestownikApp {
         }
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         match &self.screen {
-            Screen::MainMenu(state) => state.view(&self.settings, &self.storage),
+            Screen::MainMenu(state) => state.view(&self.settings),
             Screen::Quiz(state) => state.view(&self.settings),
             Screen::CompletionScreen(state) => state.view(&self.settings),
         }
@@ -380,7 +413,8 @@ impl Application for TestownikApp {
                     keyboard::Key::Character("7") => Message::SelectAnswerByNumber(6),
                     keyboard::Key::Character("8") => Message::SelectAnswerByNumber(7),
                     keyboard::Key::Character("9") => Message::SelectAnswerByNumber(8),
-                    keyboard::Key::Named(keyboard::key::Named::Space) => Message::SpacePressed,
+                    keyboard::Key::Named(keyboard::key::Named::Space)
+                    | keyboard::Key::Named(keyboard::key::Named::Enter) => Message::SpacePressed,
                     _ => Message::None,
                 }
             } else {
@@ -390,56 +424,88 @@ impl Application for TestownikApp {
     }
 }
 
+/// Images referenced by a quiz are looked up relative to the quiz file
+fn image_base_dir(session: &QuizSession) -> PathBuf {
+    session
+        .quiz_path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| PathBuf::from("."))
+}
+
 impl TestownikApp {
+    fn go_to_menu(&mut self) {
+        self.screen = Screen::MainMenu(MainMenuState::load(&self.storage));
+    }
+
+    fn submit_answer(&mut self) {
+        if let Screen::Quiz(ref mut state) = self.screen {
+            state.submit_answer();
+            let _ = self.storage.save_session(&state.session);
+        }
+    }
+
+    fn advance_question(&mut self) {
+        if let Screen::Quiz(ref mut state) = self.screen {
+            if !state.answer_submitted {
+                return;
+            }
+            state.next_question();
+            let _ = self.storage.save_session(&state.session);
+
+            if state.session.is_complete() {
+                self.screen = Screen::CompletionScreen(CompletionState::new(state.session.clone()));
+            }
+        }
+    }
+
     fn load_quiz_from_file(&mut self, path: &str) {
-        use testownik_rs::models::{QuizSession, SessionQuestion};
+        use testownik_rs::models::SessionQuestion;
         use testownik_rs::parser;
         use testownik_rs::utils;
-        use std::path::PathBuf;
 
-        // Load questions from file
-        if let Ok(questions) = parser::read_questions_from_file(path) {
-            if questions.is_empty() {
-                return; // Don't create empty sessions
+        let questions = match parser::read_questions_from_file(path) {
+            Ok(q) if !q.is_empty() => q,
+            Ok(_) => {
+                self.screen = Screen::MainMenu(MainMenuState::with_error(
+                    &self.storage,
+                    format!("Plik {path} nie zawiera żadnych poprawnych pytań."),
+                ));
+                return;
             }
-            
-            let session_questions: Vec<SessionQuestion> = questions
-                .into_iter()
-                .map(|q| {
-                    SessionQuestion::new(
-                        q,
-                        self.settings.repetition_settings.initial_repetitions,
-                    )
-                })
-                .collect();
-
-            // Randomize question order
-            let shuffled_questions = utils::randomize_order(&session_questions);
-
-            // Try to get custom quiz name from JSON files
-            let quiz_name = parser::get_json_quiz_title(path);
-            
-            let mut session = QuizSession::new(
-                PathBuf::from(path),
-                shuffled_questions,
-                self.settings.repetition_settings.clone(),
-            );
-            
-            // Override quiz name if we got one from JSON
-            if let Some(name) = quiz_name {
-                session.quiz_name = name;
+            Err(e) => {
+                self.screen = Screen::MainMenu(MainMenuState::with_error(
+                    &self.storage,
+                    format!("Nie udało się wczytać pliku {path}: {e:#}"),
+                ));
+                return;
             }
+        };
 
-            // Save the new session
-            let _ = self.storage.save_session(&session);
+        let session_questions: Vec<SessionQuestion> = questions
+            .into_iter()
+            .map(|q| SessionQuestion::new(q, self.settings.repetition_settings.initial_repetitions))
+            .collect();
 
-            // Switch to quiz screen
-            let image_base_dir = PathBuf::from(path)
-                .parent()
-                .map(|p| p.to_path_buf())
-                .unwrap_or_else(|| PathBuf::from("."));
-            self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
+        // Randomize question order
+        let shuffled_questions = utils::randomize_order(&session_questions);
+
+        let mut session = QuizSession::new(
+            PathBuf::from(path),
+            shuffled_questions,
+            self.settings.repetition_settings.clone(),
+        );
+
+        // Use the title from JSON quiz files when available
+        if let Some(name) = parser::get_json_quiz_title(path) {
+            session.quiz_name = name;
         }
+
+        let _ = self.storage.save_session(&session);
+
+        let image_base_dir = image_base_dir(&session);
+        self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
     }
 }
 
@@ -448,9 +514,10 @@ pub fn run_app() -> iced::Result {
     TestownikApp::run(IcedSettings {
         window: window::Settings {
             size: Size::new(900.0, 700.0),
+            min_size: Some(Size::new(640.0, 480.0)),
             ..window::Settings::default()
         },
         default_font: DEFAULT_FONT,
-        ..IcedSettings::default()
+        ..IcedSettings::with_flags(std::env::args().nth(1))
     })
 }
