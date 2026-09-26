@@ -1,18 +1,19 @@
 use crate::gui::styles::{
     success_container_style, error_container_style, answer_option_style,
     correct_answer_style, incorrect_answer_style, background_style, surface_style,
-    header_style, progress_bar_bg_style, progress_bar_fill_style, badge_style,
-    letter_badge_style, session_card_style, Colors,
+    header_style, badge_style, letter_badge_style, session_card_style,
+    hot_streak_color, hot_streak_style, Colors,
 };
 use crate::gui::Message;
-use crate::gui::main_menu::stepper_row;
+use crate::gui::main_menu::{progress_bar, stepper_row};
+use crate::gui::rich::{image_view, rich_content, ImageSize};
 use testownik_rs::models::{AppSettings, QuestionType, QuizSession, SessionQuestion, Theme};
 use testownik_rs::types::{AnswerContent, AnswerType, ContentPart, QuestionContent};
 use testownik_rs::utils;
-use iced::widget::{button, column, container, horizontal_space, image as img_widget, pick_list, row, scrollable, text, vertical_space, Column, Space};
-use iced::{Alignment, ContentFit, Font, Element, Length};
+use iced::widget::{button, column, container, horizontal_space, pick_list, row, scrollable, text, vertical_space, Column};
+use iced::{Alignment, Font, Element, Length};
 use iced::theme::{Button as ButtonTheme};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 const EMOJI_FONT: Font = Font::with_name("Segoe UI Emoji");
 
@@ -31,6 +32,8 @@ pub struct QuizState {
     // ponytail: defer session.update_question until next_question so current_question() does not jump after submit when reps hit 0
     pub pending_submission: Option<(String, bool)>,
     pub show_settings: bool,
+    /// Length of the streak broken by the last (incorrect) answer, 0 if none
+    pub broken_streak: u32,
 }
 
 impl QuizState {
@@ -52,6 +55,7 @@ impl QuizState {
             image_base_dir,
             pending_submission: None,
             show_settings: false,
+            broken_streak: 0,
         }
     }
 
@@ -112,6 +116,10 @@ impl QuizState {
     }
 
     pub fn submit_answer(&mut self) {
+        if self.answer_submitted {
+            return; // Never count the same answer twice
+        }
+
         // Get the question tag first to avoid borrowing issues
         let (question_tag, is_correct) = if let Some(question) = self.session.current_question() {
             let is_correct = question.check_answer(&self.selected_answers);
@@ -122,6 +130,7 @@ impl QuizState {
 
         self.is_correct = Some(is_correct);
         self.answer_submitted = true;
+        self.broken_streak = self.session.record_streak(is_correct);
 
         // ponytail: defer session update until advance so current_question stays put while feedback shows
         self.pending_submission = Some((question_tag, is_correct));
@@ -135,6 +144,7 @@ impl QuizState {
         self.selected_answers.clear();
         self.answer_submitted = false;
         self.is_correct = None;
+        self.broken_streak = 0;
 
         // Randomize answers for the new question
         let answer_count = self
@@ -171,13 +181,13 @@ impl QuizState {
         };
 
         // Header with progress
-        let header = self.create_header(current_q, is_dark);
+        let header = self.create_header(current_q, settings, is_dark);
 
         // Question content
         let question_card = self.create_question_card(current_q, is_dark);
 
         // Feedback message
-        let feedback = self.create_feedback(is_dark);
+        let feedback = self.create_feedback(settings, is_dark);
 
         // Answers section
         let answers_section = self.create_answers_section(current_q, is_dark);
@@ -185,12 +195,24 @@ impl QuizState {
         // Action buttons
         let action_buttons = self.create_action_buttons(is_dark);
 
+        // Question and answers scroll together, so large images never push
+        // the answers (or the action buttons) out of the window
+        let body = scrollable(
+            column![
+                vertical_space().height(16),
+                question_card,
+                vertical_space().height(12),
+                answers_section,
+                vertical_space().height(12),
+            ]
+            .width(Length::Fill),
+        )
+        .height(Length::Fill);
+
         // Main content
         let content = column![
             header,
-            vertical_space().height(16),
-            question_card,
-            answers_section,
+            body,
             feedback,
             action_buttons,
         ]
@@ -205,7 +227,7 @@ impl QuizState {
             .into()
     }
 
-    fn create_header(&self, current_q: &SessionQuestion, is_dark: bool) -> Element<'_, Message> {
+    fn create_header(&self, current_q: &SessionQuestion, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
         let active_questions = self.session.active_questions();
         let progress_pct = self.session.progress_percentage() as f32 / 100.0;
         
@@ -247,21 +269,17 @@ impl QuizState {
             .size(16)
             .style(Colors::PRIMARY);
 
-        // Progress bar
-        let progress_bar = container(
-            container(Space::new(Length::Fill, 8))
-                .width(Length::FillPortion((progress_pct * 100.0) as u16))
-                .style(progress_bar_fill_style(is_dark))
-        )
-        .width(Length::Fill)
-        .height(8)
-        .style(progress_bar_bg_style(is_dark));
+        let progress_bar = progress_bar(progress_pct, Length::Fill, 8.0, is_dark);
+
+        let streak_badge = self.create_streak_badge(settings, is_dark);
 
         container(
             column![
                 row![
                     question_counter,
                     horizontal_space(),
+                    streak_badge,
+                    horizontal_space().width(8),
                     reps_badge,
                     horizontal_space().width(12),
                     progress_text,
@@ -277,23 +295,64 @@ impl QuizState {
         .into()
     }
 
+    /// Streak indicator in the header: a glowing hot streak badge once the
+    /// configured number of consecutive correct answers is reached, otherwise
+    /// a subtle counter of the current series.
+    fn create_streak_badge(&self, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
+        let streak = self.session.current_streak;
+        let level = settings.hot_streak_level(streak);
+
+        if level > 0 {
+            let flames = "🔥".repeat(level as usize);
+            let label = match level {
+                1 => "Hot streak",
+                2 => "Super seria",
+                _ => "On fire",
+            };
+            container(
+                row![
+                    text(flames).font(EMOJI_FONT).size(14),
+                    text(format!("{} ×{}", label, streak))
+                        .size(13)
+                        .style(hot_streak_color(level)),
+                ]
+                .spacing(6)
+                .align_items(Alignment::Center),
+            )
+            .padding([4, 10])
+            .style(hot_streak_style(level))
+            .into()
+        } else if streak > 0 {
+            let hint = if settings.hot_streak_enabled {
+                format!("Seria: {} / {}", streak, settings.hot_streak_threshold)
+            } else {
+                format!("Seria: {}", streak)
+            };
+            container(text(hint).size(12).style(if is_dark {
+                Colors::DARK_TEXT_SECONDARY
+            } else {
+                Colors::LIGHT_TEXT_SECONDARY
+            }))
+            .padding([4, 10])
+            .style(badge_style(is_dark))
+            .into()
+        } else {
+            horizontal_space().width(0).into()
+        }
+    }
+
     fn create_question_card(&self, current_q: &SessionQuestion, is_dark: bool) -> Element<'_, Message> {
         let text_color = if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT };
 
         let question_body: Element<'_, Message> = match &current_q.question.content {
             QuestionContent::Text(t) => {
-                let mut col = Column::new().spacing(12);
-                for raw_line in t.split('\n') {
-                    let line = raw_line.trim();
-                    if line.is_empty() {
-                        continue;
-                    }
-                    col = push_text_with_images(&self.image_base_dir, col, line, text_color);
-                }
-                col.into()
+                rich_content(&self.image_base_dir, t, 20, text_color, ImageSize::QUESTION).into()
             }
             QuestionContent::Image(path) => {
-                image_element(&self.image_base_dir, path.trim())
+                container(image_view(&self.image_base_dir, path.trim(), ImageSize::QUESTION))
+                    .width(Length::Fill)
+                    .center_x()
+                    .into()
             }
             QuestionContent::Select(parts) => {
                 let mut content = String::new();
@@ -312,10 +371,7 @@ impl QuizState {
                         }
                     }
                 }
-                text(content)
-                    .size(20)
-                    .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT })
-                    .into()
+                rich_content(&self.image_base_dir, &content, 20, text_color, ImageSize::QUESTION).into()
             }
         };
 
@@ -336,49 +392,61 @@ impl QuizState {
         .into()
     }
 
-    fn create_feedback(&self, is_dark: bool) -> Element<'_, Message> {
-        if let Some(is_correct) = self.is_correct {
-            let (icon, message) = if is_correct {
-                ("✅", "Poprawnie! Świetna robota!")
-            } else {
-                ("❌", "Niepoprawnie. Prawidłowa odpowiedź jest podświetlona powyżej.")
-            };
-
-            let inner_container = if is_correct {
-                container(
-                    row![
-                        text(icon).font(EMOJI_FONT).size(24),
-                        horizontal_space().width(12),
-                        text(message).size(16),
-                    ]
-                    .align_items(Alignment::Center)
-                    .padding([14, 20])
-                )
+    fn create_feedback(&self, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
+        let Some(is_correct) = self.is_correct else {
+            return container(vertical_space().height(8))
                 .width(Length::Fill)
-                .style(success_container_style(is_dark))
-            } else {
-                container(
-                    row![
-                        text(icon).font(EMOJI_FONT).size(24),
-                        horizontal_space().width(12),
-                        text(message).size(16),
-                    ]
-                    .align_items(Alignment::Center)
-                    .padding([14, 20])
-                )
-                .width(Length::Fill)
-                .style(error_container_style(is_dark))
-            };
+                .into();
+        };
 
-            container(inner_container)
+        let streak = self.session.current_streak;
+        let level = if is_correct { settings.hot_streak_level(streak) } else { 0 };
+
+        let (icon, message) = if level > 0 {
+            let threshold = settings.hot_streak_threshold.max(1);
+            let message = if streak == threshold {
+                format!("Hot streak! {} poprawnych odpowiedzi z rzędu!", streak)
+            } else if streak % threshold == 0 && level < 3 {
+                format!("Poziom w górę! Już {} poprawnych z rzędu!", streak)
+            } else if level >= 3 {
+                format!("Nie do zatrzymania! {} poprawnych z rzędu!", streak)
+            } else {
+                format!("Poprawnie! Seria trwa: {} z rzędu", streak)
+            };
+            ("🔥".repeat(level as usize), message)
+        } else if is_correct {
+            ("✅".to_string(), "Poprawnie! Świetna robota!".to_string())
+        } else {
+            let base = "Niepoprawnie. Prawidłowa odpowiedź jest podświetlona powyżej.";
+            let message = if settings.hot_streak_level(self.broken_streak) > 0 {
+                format!("{} Hot streak ({} z rzędu) przerwany.", base, self.broken_streak)
+            } else {
+                base.to_string()
+            };
+            ("❌".to_string(), message)
+        };
+
+        let content = row![
+            text(icon).font(EMOJI_FONT).size(24),
+            horizontal_space().width(12),
+            text(message).size(16),
+        ]
+        .align_items(Alignment::Center)
+        .padding([14, 20]);
+
+        let inner = container(content).width(Length::Fill);
+        let inner = if level > 0 {
+            inner.style(hot_streak_style(level))
+        } else if is_correct {
+            inner.style(success_container_style(is_dark))
+        } else {
+            inner.style(error_container_style(is_dark))
+        };
+
+        container(inner)
             .padding([16, 28])
             .width(Length::Fill)
             .into()
-        } else {
-            container(vertical_space().height(8))
-                .width(Length::Fill)
-                .into()
-        }
     }
 
     fn create_answers_section(&self, question: &SessionQuestion, is_dark: bool) -> Element<'_, Message> {
@@ -386,7 +454,7 @@ impl QuizState {
 
         match question.question.question_type {
             QuestionType::Single => {
-                for &original_idx in &self.randomized_answer_indices {
+                for (display_idx, &original_idx) in self.randomized_answer_indices.iter().enumerate() {
                     if let Some(answer) = question.question.answers.get(original_idx) {
                         let answer_text = match &answer.content {
                             AnswerContent::Single { content } => content.clone(),
@@ -396,27 +464,27 @@ impl QuizState {
                         let is_selected = self.selected_answers.contains(&original_idx);
                         let is_correct_answer = answer.is_correct.unwrap_or(false);
 
-                        // Create the answer option
-                        let option_letter = (b'A' + original_idx as u8) as char;
-                        
+                        // Label follows the displayed order so it matches the 1-9 shortcuts
                         let letter_container = container(
-                            text(format!("{}", option_letter)).size(14)
+                            text(format!("{}", display_idx + 1)).size(14)
                         )
                         .padding([6, 10])
                         .style(letter_badge_style(is_dark, is_selected));
 
+                        let text_color = if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT };
                         let answer_content: Element<'_, Message> = match answer.answer_type {
-                            AnswerType::Image => img_widget(
-                                resolve_image_path(&self.image_base_dir, answer_text.trim())
+                            AnswerType::Image => {
+                                image_view(&self.image_base_dir, answer_text.trim(), ImageSize::ANSWER)
+                            }
+                            AnswerType::Text => rich_content(
+                                &self.image_base_dir,
+                                &answer_text,
+                                16,
+                                text_color,
+                                ImageSize::ANSWER,
                             )
-                            .width(Length::Fixed(200.0))
-                            .height(Length::Fixed(140.0))
-                            .content_fit(ContentFit::Contain)
+                            .width(Length::Fill)
                             .into(),
-                            AnswerType::Text => text(&answer_text)
-                                .size(16)
-                                .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT })
-                                .into(),
                         };
 
                         let answer_row = row![
@@ -534,13 +602,10 @@ impl QuizState {
             }
         }
 
-        container(
-            scrollable(answers_col)
-        )
-        .padding([0, 28])
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into()
+        container(answers_col)
+            .padding([0, 28])
+            .width(Length::Fill)
+            .into()
     }
 
     fn create_action_buttons(&self, is_dark: bool) -> Element<'_, Message> {
@@ -594,7 +659,7 @@ impl QuizState {
         .style(ButtonTheme::Secondary);
 
         // Keyboard shortcuts help text
-        let shortcuts_text = text("⌨️ 1-9: Wybierz • Spacja: Zatwierdź/Dalej").font(EMOJI_FONT)
+        let shortcuts_text = text("⌨️ 1-9: Wybierz • Spacja/Enter: Zatwierdź/Dalej").font(EMOJI_FONT)
             .size(12)
             .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
 
@@ -758,18 +823,33 @@ impl QuizState {
                     .size(18)
                     .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
                 vertical_space().height(24),
-                container(
-                    column![
-                        text("📚").font(EMOJI_FONT).size(24),
-                        text(format!("{}", self.session.questions.len())).size(28)
-                            .style(Colors::PRIMARY),
-                        text("Pytań").size(12)
-                            .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY }),
-                    ]
-                    .align_items(Alignment::Center)
-                    .spacing(4)
-                )
-                .padding(20),
+                row![
+                    container(
+                        column![
+                            text("📚").font(EMOJI_FONT).size(24),
+                            text(format!("{}", self.session.questions.len())).size(28)
+                                .style(Colors::PRIMARY),
+                            text("Pytań").size(12)
+                                .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY }),
+                        ]
+                        .align_items(Alignment::Center)
+                        .spacing(4)
+                    )
+                    .padding(20),
+                    container(
+                        column![
+                            text("🔥").font(EMOJI_FONT).size(24),
+                            text(format!("{}", self.session.best_streak)).size(28)
+                                .style(Colors::STREAK_HOT),
+                            text("Najdłuższa seria").size(12)
+                                .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY }),
+                        ]
+                        .align_items(Alignment::Center)
+                        .spacing(4)
+                    )
+                    .padding(20),
+                ]
+                .spacing(16),
                 vertical_space().height(24),
                 button(
                     row![
@@ -797,79 +877,4 @@ impl QuizState {
             .style(background_style(is_dark))
             .into()
     }
-}
-
-/// Scans `line` for `[img]...[/img]` markers and appends the text segments and
-/// image widgets to `col` in source order, so images always render directly
-/// under the surrounding question text (also handles tags inline with text).
-fn push_text_with_images<'a>(
-    base_dir: &Path,
-    mut col: Column<'a, Message>,
-    line: &str,
-    text_color: iced::Color,
-) -> Column<'a, Message> {
-    let mut rest = line;
-    loop {
-        let Some(open) = rest.find("[img]") else {
-            let tail = rest.trim();
-            if !tail.is_empty() {
-                col = col.push(text(tail.to_string()).size(20).style(text_color));
-            }
-            return col;
-        };
-
-        let pre = rest[..open].trim();
-        if !pre.is_empty() {
-            col = col.push(text(pre.to_string()).size(20).style(text_color));
-        }
-
-        let after_open = &rest[open + "[img]".len()..];
-        let Some(close) = after_open.find("[/img]") else {
-            let tail = rest[open..].trim();
-            if !tail.is_empty() {
-                col = col.push(text(tail.to_string()).size(20).style(text_color));
-            }
-            return col;
-        };
-
-        let img_path = after_open[..close].trim();
-        if !img_path.is_empty() {
-            col = col.push(image_element(base_dir, img_path));
-        }
-        rest = &after_open[close + "[/img]".len()..];
-    }
-}
-
-/// Wraps the image in a centered, height-constrained container so it scales
-/// sensibly and stays visible inside the question card.
-fn image_element(base_dir: &Path, img_path: &str) -> Element<'static, Message> {
-    container(
-        img_widget(resolve_image_path(base_dir, img_path))
-            .width(Length::Fill)
-            .height(Length::Fixed(280.0))
-            .content_fit(ContentFit::Contain),
-    )
-    .width(Length::Fill)
-    .center_x()
-    .into()
-}
-
-/// Resolves an image filename to a full path.
-/// Tries `base_dir/filename` first; if not found, searches one level of subdirectories.
-fn resolve_image_path(base_dir: &Path, filename: &str) -> PathBuf {
-    let direct = base_dir.join(filename);
-    if direct.exists() {
-        return direct;
-    }
-    if let Ok(entries) = std::fs::read_dir(base_dir) {
-        for entry in entries.flatten() {
-            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
-                let candidate = entry.path().join(filename);
-                if candidate.exists() {
-                    return candidate;
-                }
-            }
-        }
-    }
-    direct
 }

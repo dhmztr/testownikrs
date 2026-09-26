@@ -1,19 +1,23 @@
 use crate::gui::styles::{
-    session_card_style, background_style, surface_style,
+    session_card_style, background_style, error_container_style, hot_streak_color,
     header_style, progress_bar_bg_style, progress_bar_fill_style, Colors,
 };
 use crate::gui::Message;
 use testownik_rs::models::{AppSettings, SessionMetadata, Theme};
 use testownik_rs::persistence::Storage;
-use iced::widget::{button, column, container, horizontal_space, row, scrollable, text, vertical_space, Column, Space};
-use iced::{Alignment,Font ,Element, Length};
+use iced::widget::{button, column, container, horizontal_space, row, scrollable, text, vertical_space, Column, Row, Space};
+use iced::{Alignment, Font, Element, Length};
 use iced::theme::{Button as ButtonTheme};
+
 const EMOJI_FONT: Font = iced::Font::with_name("Segoe UI Emoji");
+
 /// State for the main menu screen
 #[derive(Debug, Clone)]
 pub struct MainMenuState {
     pub sessions: Vec<SessionMetadata>,
     pub show_settings: bool,
+    /// Error shown at the top of the menu (e.g. a quiz file failed to load)
+    pub error: Option<String>,
 }
 
 impl MainMenuState {
@@ -21,16 +25,32 @@ impl MainMenuState {
         Self {
             sessions: Vec::new(),
             show_settings: false,
+            error: None,
         }
+    }
+
+    /// Creates the menu with the saved sessions already loaded
+    pub fn load(storage: &Storage) -> Self {
+        let mut state = Self::new();
+        state.refresh_sessions(storage);
+        state
+    }
+
+    pub fn with_error(storage: &Storage, error: impl Into<String>) -> Self {
+        let mut state = Self::load(storage);
+        state.error = Some(error.into());
+        state
     }
 
     pub fn refresh_sessions(&mut self, storage: &Storage) {
         self.sessions = storage.list_sessions().unwrap_or_default();
     }
 
-    pub fn view(&self, settings: &AppSettings, storage: &Storage) -> Element<'_, Message> {
+    pub fn view(&self, settings: &AppSettings) -> Element<'_, Message> {
         let is_dark = settings.theme == Theme::Dark;
-        let sessions = storage.list_sessions().unwrap_or_default();
+        // Sessions are cached in the state; reading every session file on
+        // each redraw made the menu sluggish with many saved sessions
+        let sessions = &self.sessions;
 
         // Header section with gradient-style appearance
         let header = self.create_header(settings, is_dark);
@@ -39,14 +59,39 @@ impl MainMenuState {
         let action_section = self.create_action_section(is_dark);
         
         // Sessions section
-        let sessions_section = self.create_sessions_section(&sessions, is_dark);
+        let sessions_section = self.create_sessions_section(sessions, is_dark);
         
         // Settings info footer
         let settings_footer = self.create_settings_footer(settings, is_dark);
 
         // Main layout with modern spacing
+        let error_banner: Element<'_, Message> = match &self.error {
+            Some(err) => container(
+                container(
+                    row![
+                        text("⚠️").font(EMOJI_FONT).size(18),
+                        text(err.clone()).size(14).width(Length::Fill),
+                        button(text("✕").size(12))
+                            .on_press(Message::DismissError)
+                            .padding([4, 10])
+                            .style(ButtonTheme::Text),
+                    ]
+                    .spacing(10)
+                    .align_items(Alignment::Center)
+                    .padding([10, 16]),
+                )
+                .width(Length::Fill)
+                .style(error_container_style(is_dark)),
+            )
+            .padding([16, 28, 0, 28])
+            .width(Length::Fill)
+            .into(),
+            None => Space::new(Length::Fill, 0).into(),
+        };
+
         let content = column![
             header,
+            error_banner,
             vertical_space().height(20),
             action_section,
             vertical_space().height(24),
@@ -213,16 +258,12 @@ impl MainMenuState {
             .size(17)
             .style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT });
 
-        // Progress bar
-        let progress_pct = session.progress_percentage as f32 / 100.0;
-        let progress_bar = container(
-            container(Space::new(Length::Fill, 6))
-                .width(Length::FillPortion((progress_pct * 100.0) as u16))
-                .style(progress_bar_fill_style(is_dark))
-        )
-        .width(Length::Fixed(180.0))
-        .height(6)
-        .style(progress_bar_bg_style(is_dark));
+        let progress_bar = progress_bar(
+            session.progress_percentage / 100.0,
+            Length::Fixed(180.0),
+            6.0,
+            is_dark,
+        );
 
         let progress_text = text(format!(
             "{:.0}% • {}/{} ukończone",
@@ -233,9 +274,15 @@ impl MainMenuState {
         .size(13)
         .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY });
 
+        let streak_info = if session.best_streak > 0 {
+            format!("   🔥 rekord serii: {}", session.best_streak)
+        } else {
+            String::new()
+        };
         let updated = text(format!(
-            "🕐 {}",
-            session.updated_at.format("%b %d, %Y at %H:%M")
+            "🕐 {}{}",
+            session.updated_at.with_timezone(&chrono::Local).format("%d.%m.%Y %H:%M"),
+            streak_info
         ))
         .font(EMOJI_FONT)
         .size(12)
@@ -292,12 +339,18 @@ impl MainMenuState {
             return self.create_settings_panel(settings, is_dark);
         }
 
+        let streak_text = if settings.hot_streak_enabled {
+            format!("🔥 od {}", settings.hot_streak_threshold)
+        } else {
+            "🔥 wył.".to_string()
+        };
         let settings_text = text(format!(
-            "⚙️ Powtórzenia: {} początkowe • -{} za poprawną • +{} za błędną • {} maks.",
+            "⚙️ Powtórzenia: {} początkowe • -{} za poprawną • +{} za błędną • {} maks. • {}",
             settings.repetition_settings.initial_repetitions,
             settings.repetition_settings.correct_decrease,
             settings.repetition_settings.incorrect_increase,
-            settings.repetition_settings.max_repetitions
+            settings.repetition_settings.max_repetitions,
+            streak_text
         ))
         .font(EMOJI_FONT)
         .size(12)
@@ -390,6 +443,8 @@ impl MainMenuState {
             incorrect,
             vertical_space().height(8),
             max,
+            vertical_space().height(16),
+            hot_streak_settings(settings, is_dark),
         ]
         .width(Length::Fill);
 
@@ -436,6 +491,69 @@ pub fn stepper_row<'a>(
     ]
     .align_items(Alignment::Center)
     .into()
+}
+
+/// Hot streak section of the settings panel: on/off toggle and threshold
+pub fn hot_streak_settings<'a>(settings: &AppSettings, is_dark: bool) -> Element<'a, Message> {
+    let title = row![
+        text("🔥").font(EMOJI_FONT).size(16),
+        text("Hot streak").size(15).style(hot_streak_color(1)),
+    ]
+    .spacing(6)
+    .align_items(Alignment::Center);
+
+    let toggle = button(
+        text(if settings.hot_streak_enabled { "Włączony" } else { "Wyłączony" }).size(13),
+    )
+    .on_press(Message::ToggleHotStreak)
+    .padding([6, 14])
+    .style(if settings.hot_streak_enabled {
+        ButtonTheme::Primary
+    } else {
+        ButtonTheme::Secondary
+    });
+
+    let header = row![title, horizontal_space(), toggle].align_items(Alignment::Center);
+
+    let threshold = settings.hot_streak_threshold as i32;
+    let threshold_row = stepper_row(
+        "Próg hot streaka",
+        "Po ilu poprawnych odpowiedziach z rzędu pojawia się hot streak",
+        threshold,
+        Message::SetHotStreakThreshold(threshold - 1),
+        Message::SetHotStreakThreshold(threshold + 1),
+        is_dark,
+    );
+
+    let mut col = column![header].spacing(8);
+    if settings.hot_streak_enabled {
+        col = col.push(threshold_row);
+    }
+    col.into()
+}
+
+/// Horizontal progress bar; `fraction` is clamped to 0.0..=1.0
+pub fn progress_bar<'a>(fraction: f32, width: Length, height: f32, is_dark: bool) -> Element<'a, Message> {
+    const RESOLUTION: u16 = 1000;
+    let filled = (fraction.clamp(0.0, 1.0) * RESOLUTION as f32).round() as u16;
+
+    let mut bar = Row::new().width(Length::Fill).height(height);
+    if filled > 0 {
+        bar = bar.push(
+            container(Space::new(Length::Fill, height))
+                .width(Length::FillPortion(filled))
+                .style(progress_bar_fill_style(is_dark)),
+        );
+    }
+    if filled < RESOLUTION {
+        bar = bar.push(Space::new(Length::FillPortion(RESOLUTION - filled), height));
+    }
+
+    container(bar)
+        .width(width)
+        .height(height)
+        .style(progress_bar_bg_style(is_dark))
+        .into()
 }
 
 impl Default for MainMenuState {

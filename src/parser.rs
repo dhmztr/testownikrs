@@ -276,7 +276,6 @@ pub fn parse_question_block(text: &str, tag: String) -> Result<Question> {
 }
 
 /// Parsuje pytanie typu X (single/multiple choice)
-/// Parsuje pytanie typu X (single/multiple choice)
 pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
     if lines.len() < 3 {
         anyhow::bail!("Za mało linii dla pytania typu X");
@@ -302,27 +301,19 @@ pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
         .filter(|line| !line.is_empty())
         .collect();
 
-    // 3. Oddzielamy obrazki pytania od rzeczywistych odpowiedzi
-    let mut final_answers = Vec::new();
-    let all_answers_are_images = raw_answers.iter().all(|a| a.starts_with("[img]"));
-
-    if !all_answers_are_images {
-        for line in raw_answers {
-            // Jeśli linia to czysty tag [img], doklejamy go do treści pytania
-            if line.starts_with("[img]") && line.ends_with("[/img]") {
-                question_text.push('\n');
-                question_text.push_str(line);
-            } else {
-                final_answers.push(line);
-            }
-        }
-    } else {
-        // Jeśli wszystkie odpowiedzi to obrazki, nie modyfikujemy ich
-        final_answers = raw_answers;
+    // 3. Oddzielamy obrazki pytania od rzeczywistych odpowiedzi.
+    // Nagłówek X określa liczbę odpowiedzi (np. X0100 = 4 odpowiedzi), więc
+    // nadmiarowe linie na początku, które są samymi tagami [img], należą do
+    // treści pytania. Obrazki będące odpowiedziami pozostają odpowiedziami.
+    let expected_answers = correct_answers_str.chars().filter(|c| *c == '0' || *c == '1').count();
+    let mut final_answers: Vec<&str> = raw_answers;
+    while final_answers.len() > expected_answers.max(1) && is_pure_image_tag(final_answers[0]) {
+        question_text.push('\n');
+        question_text.push_str(final_answers.remove(0));
     }
 
     // 4. Określamy ostateczny typ i zawartość pytania
-    let (content_type, content) = if question_text.starts_with("[img]") && !question_text.contains('\n') {
+    let (content_type, content) = if is_pure_image_tag(&question_text) {
         (
             ContentType::Image,
             QuestionContent::Image(extract_image_link(&question_text)?),
@@ -339,7 +330,9 @@ pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
         .into_iter()
         .enumerate()
         .map(|(index, line)| {
-            let (answer_type, content) = if line.starts_with("[img]") {
+            // Odpowiedź jest obrazkiem tylko gdy linia to sam tag [img];
+            // tekst z osadzonym obrazkiem zostaje tekstem i jest renderowany w GUI
+            let (answer_type, content) = if is_pure_image_tag(line) {
                 (
                     AnswerType::Image,
                     extract_image_link(line).unwrap_or_default(),
@@ -352,7 +345,6 @@ pub fn parse_x_question(lines: &[&str], tag: String) -> Result<Question> {
                 id: index,
                 answer_type,
                 content: AnswerContent::Single { content },
-                // Sprawdzamy is_correct bazując na nowym (przefiltrowanym) indeksie
                 is_correct: Some(correct_indices.contains(&index)),
                 correct_option_id: None,
                 options: None,
@@ -388,7 +380,7 @@ pub fn parse_y_question(lines: &[&str], tag: String) -> Result<Question> {
         .collect();
 
     let question_line = lines[1].trim();
-    let content_type = if question_line.starts_with("[img]") {
+    let content_type = if is_pure_image_tag(question_line) {
         ContentType::Image
     } else {
         ContentType::Text
@@ -410,7 +402,7 @@ pub fn parse_y_question(lines: &[&str], tag: String) -> Result<Question> {
                 .iter()
                 .enumerate()
                 .map(|(option_index, option_str)| {
-                    let (option_type, option_content) = if option_str.starts_with("[img]") {
+                    let (option_type, option_content) = if is_pure_image_tag(option_str) {
                         (
                             AnswerType::Image,
                             extract_image_link(option_str).unwrap_or_default(),
@@ -450,11 +442,20 @@ pub fn parse_y_question(lines: &[&str], tag: String) -> Result<Question> {
     })
 }
 
+/// Sprawdza czy linia składa się wyłącznie z jednego tagu [img]...[/img]
+pub fn is_pure_image_tag(line: &str) -> bool {
+    let line = line.trim();
+    line.starts_with("[img]")
+        && line.ends_with("[/img]")
+        && line.matches("[img]").count() == 1
+        && line.len() > "[img][/img]".len()
+}
+
 /// Ekstrahuje link do obrazka z tagu [img]link[/img]
 pub fn extract_image_link(line: &str) -> Result<String> {
     let re = Regex::new(r"\[img\](.*?)\[/img\]")?;
     if let Some(caps) = re.captures(line) {
-        Ok(caps.get(1).map(|m| m.as_str()).unwrap_or("").to_string())
+        Ok(caps.get(1).map(|m| m.as_str().trim()).unwrap_or("").to_string())
     } else {
         anyhow::bail!("Nie znaleziono tagu [img]");
     }
@@ -521,6 +522,51 @@ mod tests {
         let line = "Jakiś tekst [img]path/to/image.jpg[/img] więcej tekstu";
         let result = extract_image_link(line).unwrap();
         assert_eq!(result, "path/to/image.jpg");
+    }
+
+    #[test]
+    fn test_x_question_image_between_question_and_answers() {
+        let lines = vec!["X0100", "Co przedstawia rysunek?", "[img]z1.png[/img]", "A", "B", "C", "D"];
+        let q = parse_x_question(&lines, "t".into()).unwrap();
+        assert_eq!(q.answers.len(), 4);
+        assert_eq!(q.answers[1].is_correct, Some(true));
+        match &q.content {
+            QuestionContent::Text(t) => assert!(t.contains("[img]z1.png[/img]")),
+            _ => panic!("Expected Text"),
+        }
+    }
+
+    #[test]
+    fn test_x_question_image_only_question() {
+        let lines = vec!["X1000", "[img]z1.png[/img]", "A", "B", "C", "D"];
+        let q = parse_x_question(&lines, "t".into()).unwrap();
+        assert!(matches!(q.content, QuestionContent::Image(ref p) if p == "z1.png"));
+        assert_eq!(q.answers.len(), 4);
+    }
+
+    #[test]
+    fn test_x_question_mixed_image_and_text_answers_stay_answers() {
+        let lines = vec!["X001", "Który diagram?", "[img]a.png[/img]", "[img]b.png[/img]", "Żaden"];
+        let q = parse_x_question(&lines, "t".into()).unwrap();
+        assert_eq!(q.answers.len(), 3);
+        assert!(matches!(q.answers[0].answer_type, AnswerType::Image));
+        assert_eq!(q.answers[2].is_correct, Some(true));
+    }
+
+    #[test]
+    fn test_x_question_text_with_inline_image_is_text() {
+        let lines = vec!["X10", "Pytanie", "[img]a.png[/img] opis", "B"];
+        let q = parse_x_question(&lines, "t".into()).unwrap();
+        assert!(matches!(q.answers[0].answer_type, AnswerType::Text));
+    }
+
+    #[test]
+    fn test_is_pure_image_tag() {
+        assert!(is_pure_image_tag("[img]a.png[/img]"));
+        assert!(is_pure_image_tag("  [img]a.png[/img] "));
+        assert!(!is_pure_image_tag("[img]a.png[/img] tekst"));
+        assert!(!is_pure_image_tag("[img]a.png[/img][img]b.png[/img]"));
+        assert!(!is_pure_image_tag("[img][/img]"));
     }
 
     #[test]

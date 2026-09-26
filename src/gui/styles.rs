@@ -1,7 +1,7 @@
 // Modern styling module for the Testownik-rs application
 // Uses iced's built-in theming system with customizations
 
-use iced::widget::{button, container};
+use iced::widget::container;
 use iced::{Border, Color, Background};
 
 /// Modern color palette
@@ -26,6 +26,11 @@ impl Colors {
     // Warning/Info colors
     pub const WARNING: Color = Color::from_rgb(0.95, 0.70, 0.23);      // #F2B33B
     pub const INFO: Color = Color::from_rgb(0.18, 0.67, 0.87);         // #2EABDE
+
+    // Hot streak colors (orange -> red -> magenta as the streak grows)
+    pub const STREAK_HOT: Color = Color::from_rgb(0.98, 0.55, 0.13);    // #FA8C21
+    pub const STREAK_HOTTER: Color = Color::from_rgb(0.95, 0.33, 0.16); // #F25429
+    pub const STREAK_ON_FIRE: Color = Color::from_rgb(0.90, 0.20, 0.45); // #E63373
     
     // Background colors for dark mode
     pub const DARK_BG: Color = Color::from_rgb(0.08, 0.09, 0.12);      // #14171F
@@ -284,6 +289,59 @@ pub fn letter_badge_style(is_dark: bool, is_selected: bool) -> impl Fn(&iced::Th
             text_color: Some(if is_selected { Color::WHITE } else {
                 if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY }
             }),
+            ..Default::default()
+        }
+    }
+}
+
+/// Frame drawn around images so they stand out from the card background
+pub fn image_frame_style() -> impl Fn(&iced::Theme) -> container::Appearance {
+    move |_theme: &iced::Theme| container::Appearance {
+        background: Some(Background::Color(Color::WHITE)),
+        border: Border {
+            color: Color::from_rgba(0.5, 0.5, 0.5, 0.35),
+            width: 1.0,
+            radius: 8.0.into(),
+        },
+        ..Default::default()
+    }
+}
+
+/// Placeholder shown when an image file cannot be found
+pub fn missing_image_style() -> impl Fn(&iced::Theme) -> container::Appearance {
+    move |_theme: &iced::Theme| container::Appearance {
+        background: Some(Background::Color(Color::from_rgba(0.95, 0.70, 0.23, 0.12))),
+        border: Border {
+            color: Colors::WARNING,
+            width: 1.0,
+            radius: 8.0.into(),
+        },
+        ..Default::default()
+    }
+}
+
+/// Accent color for a hot streak level (1 = hot, 2 = hotter, 3 = on fire)
+pub fn hot_streak_color(level: u32) -> Color {
+    match level {
+        0 | 1 => Colors::STREAK_HOT,
+        2 => Colors::STREAK_HOTTER,
+        _ => Colors::STREAK_ON_FIRE,
+    }
+}
+
+/// Badge / banner style for an active hot streak
+pub fn hot_streak_style(level: u32) -> impl Fn(&iced::Theme) -> container::Appearance {
+    move |_theme: &iced::Theme| {
+        let accent = hot_streak_color(level);
+        let alpha = 0.10 + 0.05 * level.min(3) as f32;
+        container::Appearance {
+            background: Some(Background::Color(Color { a: alpha, ..accent })),
+            text_color: Some(accent),
+            border: Border {
+                color: accent,
+                width: if level >= 3 { 2.0 } else { 1.5 },
+                radius: 12.0.into(),
+            },
             ..Default::default()
         }
     }

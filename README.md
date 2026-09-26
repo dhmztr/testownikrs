@@ -34,6 +34,11 @@ Testownik-rs is a native cross-platform quiz application with advanced learning 
   - Visual feedback (green for correct, red for incorrect)
   - Progress tracking and statistics
 - ✅ **Theme Support**: Dark and light modes
+- ✅ **Hot Streak**: after a configurable number of consecutive correct answers
+  (default 3) a 🔥 hot streak badge and banner appear; the streak levels up at
+  2× and 3× the threshold, the best streak is saved per session and shown in
+  the session list and on the completion screen. Toggle it and change the
+  threshold in the main menu settings panel ("Edytuj").
 
 ## Installation
 
@@ -82,6 +87,12 @@ or in development mode:
 cargo run
 ```
 
+A quiz file can be opened directly by passing its path:
+
+```bash
+cargo run -- path/to/quiz.txt
+```
+
 ### Using the GUI
 
 1. **Main Menu**:
@@ -94,7 +105,7 @@ cargo run
    - Read the question and select your answer(s)
    - Click "Submit Answer" to check your response
    - See immediate feedback (green = correct, red = incorrect)
-   - Click "Next Question" to continue
+   - Click "Next Question" to continue (keys: `1`-`9` select, `Space`/`Enter` submit/next)
    - Click "Save & Exit" to return to the main menu
 
 3. **Learning System**:
@@ -158,7 +169,17 @@ test1;;test2;;test3;;test4
 
 ### Images
 
-Images are marked with `[img]path/to/image[/img]` tags:
+Images are marked with `[img]path/to/image[/img]` tags. Paths are relative to
+the quiz file. If the file is not found at that exact location, it is searched
+for in subfolders (up to 3 levels deep) and matched case-insensitively, so
+`Z1.PNG`, `obrazki\z1.png` and `z1.png` all work. Missing images are shown as
+a visible "Nie znaleziono obrazka" placeholder. Images keep their aspect ratio
+and are scaled down (never up) to fit.
+
+Image lines placed between the question text and the answers are attached to
+the question when there are more lines than answers declared in the `X`
+header (e.g. `X1000` = 4 answers). Tags may also appear inline in question or
+answer text.
 
 ```
 X0100

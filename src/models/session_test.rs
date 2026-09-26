@@ -143,3 +143,56 @@ mod next_question_tests {
             "After mastering Q2 at index 1, next_question should show Q3, not Q1");
     }
 }
+
+#[cfg(test)]
+mod streak_tests {
+    use crate::models::*;
+    use std::path::PathBuf;
+
+    fn empty_session() -> QuizSession {
+        QuizSession::new(PathBuf::from("test.txt"), vec![], RepetitionSettings::default())
+    }
+
+    #[test]
+    fn streak_counts_and_resets() {
+        let mut s = empty_session();
+        assert_eq!(s.record_streak(true), 0);
+        assert_eq!(s.record_streak(true), 0);
+        assert_eq!(s.record_streak(true), 0);
+        assert_eq!(s.current_streak, 3);
+        assert_eq!(s.record_streak(false), 3);
+        assert_eq!(s.current_streak, 0);
+        assert_eq!(s.best_streak, 3);
+        s.record_streak(true);
+        assert_eq!(s.best_streak, 3);
+    }
+
+    #[test]
+    fn hot_streak_levels() {
+        let mut settings = AppSettings::default();
+        settings.hot_streak_threshold = 3;
+        assert_eq!(settings.hot_streak_level(2), 0);
+        assert_eq!(settings.hot_streak_level(3), 1);
+        assert_eq!(settings.hot_streak_level(6), 2);
+        assert_eq!(settings.hot_streak_level(9), 3);
+        assert_eq!(settings.hot_streak_level(30), 3);
+        settings.hot_streak_enabled = false;
+        assert_eq!(settings.hot_streak_level(30), 0);
+    }
+
+    #[test]
+    fn old_settings_and_sessions_still_load() {
+        let settings: AppSettings = serde_json::from_str(
+            r#"{"theme":"Light","repetition_settings":{"initial_repetitions":2,"correct_decrease":1,"incorrect_increase":1,"max_repetitions":10}}"#,
+        )
+        .unwrap();
+        assert!(settings.hot_streak_enabled);
+        assert_eq!(settings.hot_streak_threshold, DEFAULT_HOT_STREAK_THRESHOLD);
+
+        let mut json = serde_json::to_value(empty_session()).unwrap();
+        json.as_object_mut().unwrap().remove("current_streak");
+        json.as_object_mut().unwrap().remove("best_streak");
+        let session: QuizSession = serde_json::from_value(json).unwrap();
+        assert_eq!(session.current_streak, 0);
+    }
+}

@@ -34,7 +34,7 @@ impl CompletionState {
             .sum::<usize>();
         
         let accuracy = if total_correct + total_incorrect > 0 {
-            (total_correct as f32 / (total_correct + total_incorrect) as f32 * 100.0)
+            total_correct as f32 / (total_correct + total_incorrect) as f32 * 100.0
         } else {
             0.0
         };
@@ -51,6 +51,10 @@ impl CompletionState {
                     text(format!("Suma poprawnych odpowiedzi: {}", total_correct)).size(16),
                     text(format!("Suma błędnych odpowiedzi: {}", total_incorrect)).size(16),
                     text(format!("Dokładność: {:.1}%", accuracy)).size(16),
+                    text(format!("🔥 Najdłuższa seria poprawnych: {}", self.session.best_streak))
+                        .font(EMOJI_FONT)
+                        .size(16)
+                        .style(Colors::STREAK_HOT),
                 ]
                 .spacing(8)
                 .padding(24)
