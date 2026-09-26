@@ -6,6 +6,7 @@ use crate::gui::styles::{
 };
 use crate::gui::Message;
 use crate::gui::main_menu::{progress_bar, stepper_row};
+use crate::gui::fire::{FireOverlay, FireState};
 use crate::gui::rich::{image_view, rich_content, ImageSize};
 use testownik_rs::models::{AppSettings, QuestionType, QuizSession, SessionQuestion, Theme};
 use testownik_rs::types::{AnswerContent, AnswerType, ContentPart, QuestionContent};
@@ -34,6 +35,9 @@ pub struct QuizState {
     pub show_settings: bool,
     /// Length of the streak broken by the last (incorrect) answer, 0 if none
     pub broken_streak: u32,
+    /// Hot streak fire animation
+    pub fire: FireState,
+    pub last_fire_tick: Option<std::time::Instant>,
 }
 
 impl QuizState {
@@ -56,6 +60,8 @@ impl QuizState {
             pending_submission: None,
             show_settings: false,
             broken_streak: 0,
+            fire: FireState::default(),
+            last_fire_tick: None,
         }
     }
 
@@ -219,12 +225,36 @@ impl QuizState {
         .width(Length::Fill)
         .height(Length::Fill);
 
-        container(content)
-            .style(background_style(is_dark))
+        // Background is painted by the overlay, underneath the flames
+        let screen = container(content)
             .width(Length::Fill)
             .height(Length::Fill)
-            .padding(0)
-            .into()
+            .padding(0);
+
+        let background = if is_dark { Colors::DARK_BG } else { Colors::LIGHT_BG };
+        FireOverlay::new(screen, self.fire, background).into()
+    }
+
+    /// Points the fire animation at the strength matching the current streak
+    pub fn sync_fire(&mut self, settings: &AppSettings) {
+        self.fire.target = FireState::target_for(
+            self.session.current_streak,
+            settings.hot_streak_threshold,
+            settings.hot_streak_enabled && settings.fire_effect_enabled,
+        );
+        if !self.fire.is_animating() {
+            self.last_fire_tick = None;
+        }
+    }
+
+    pub fn fire_tick(&mut self, now: std::time::Instant, settings: &AppSettings) {
+        self.sync_fire(settings);
+        let dt = self
+            .last_fire_tick
+            .map(|last| now.saturating_duration_since(last).as_secs_f32())
+            .unwrap_or(0.0);
+        self.last_fire_tick = Some(now);
+        self.fire.tick(dt);
     }
 
     fn create_header(&self, current_q: &SessionQuestion, settings: &AppSettings, is_dark: bool) -> Element<'_, Message> {
@@ -320,7 +350,7 @@ impl QuizState {
                 .align_items(Alignment::Center),
             )
             .padding([4, 10])
-            .style(hot_streak_style(level))
+            .style(hot_streak_style(level, is_dark))
             .into()
         } else if streak > 0 {
             let hint = if settings.hot_streak_enabled {
@@ -436,7 +466,7 @@ impl QuizState {
 
         let inner = container(content).width(Length::Fill);
         let inner = if level > 0 {
-            inner.style(hot_streak_style(level))
+            inner.style(hot_streak_style(level, is_dark))
         } else if is_correct {
             inner.style(success_container_style(is_dark))
         } else {

@@ -53,6 +53,8 @@ pub struct AppSettings {
     pub hot_streak_enabled: bool,
     /// How many consecutive correct answers are needed to show the hot streak
     pub hot_streak_threshold: u32,
+    /// Animated fire rising from the bottom of the screen during a hot streak
+    pub fire_effect_enabled: bool,
 }
 
 impl AppSettings {
@@ -74,6 +76,7 @@ impl Default for AppSettings {
             repetition_settings: RepetitionSettings::default(),
             hot_streak_enabled: true,
             hot_streak_threshold: DEFAULT_HOT_STREAK_THRESHOLD,
+            fire_effect_enabled: true,
         }
     }
 }

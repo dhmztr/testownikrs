@@ -4,6 +4,7 @@ pub mod quiz;
 pub mod styles;
 pub mod completion;
 pub mod rich;
+pub mod fire;
 
 pub use app::*;
 pub use main_menu::*;

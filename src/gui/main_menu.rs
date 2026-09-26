@@ -525,9 +525,32 @@ pub fn hot_streak_settings<'a>(settings: &AppSettings, is_dark: bool) -> Element
         is_dark,
     );
 
+    let fire_toggle = button(
+        text(if settings.fire_effect_enabled { "Włączony" } else { "Wyłączony" }).size(13),
+    )
+    .on_press(Message::ToggleFireEffect)
+    .padding([6, 14])
+    .style(if settings.fire_effect_enabled {
+        ButtonTheme::Primary
+    } else {
+        ButtonTheme::Secondary
+    });
+    let fire_row = row![
+        column![
+            text("Płonący ekran").size(14).style(if is_dark { Colors::DARK_TEXT } else { Colors::LIGHT_TEXT }),
+            text("Ogień od dołu ekranu — im dłuższa seria, tym wyższy i bardziej czerwony")
+                .size(11)
+                .style(if is_dark { Colors::DARK_TEXT_SECONDARY } else { Colors::LIGHT_TEXT_SECONDARY }),
+        ]
+        .spacing(2)
+        .width(Length::Fill),
+        fire_toggle,
+    ]
+    .align_items(Alignment::Center);
+
     let mut col = column![header].spacing(8);
     if settings.hot_streak_enabled {
-        col = col.push(threshold_row);
+        col = col.push(threshold_row).push(fire_row);
     }
     col.into()
 }

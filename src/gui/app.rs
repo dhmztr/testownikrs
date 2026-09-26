@@ -48,6 +48,8 @@ pub enum Message {
     SetMaxRepetitions(i32),
     ResetRepetitionSettings,
     ToggleHotStreak,
+    ToggleFireEffect,
+    FireTick(std::time::Instant),
     SetHotStreakThreshold(i32),
     DismissError,
     
@@ -131,6 +133,19 @@ impl Application for TestownikApp {
                 Command::none()
             }
 
+            Message::ToggleFireEffect => {
+                self.settings.fire_effect_enabled = !self.settings.fire_effect_enabled;
+                let _ = self.storage.save_settings(&self.settings);
+                Command::none()
+            }
+
+            Message::FireTick(now) => {
+                if let Screen::Quiz(ref mut state) = self.screen {
+                    state.fire_tick(now, &self.settings);
+                }
+                Command::none()
+            }
+
             Message::SetHotStreakThreshold(v) => {
                 self.settings.hot_streak_threshold = (v.max(0) as u32)
                     .clamp(MIN_HOT_STREAK_THRESHOLD, MAX_HOT_STREAK_THRESHOLD);
@@ -189,7 +204,9 @@ impl Application for TestownikApp {
                 match self.storage.load_session(&session_id) {
                     Ok(session) => {
                         let image_base_dir = image_base_dir(&session);
-                        self.screen = Screen::Quiz(QuizState::new(session, image_base_dir));
+                        let mut state = QuizState::new(session, image_base_dir);
+                        state.sync_fire(&self.settings);
+                        self.screen = Screen::Quiz(state);
                     }
                     Err(e) => {
                         self.screen = Screen::MainMenu(MainMenuState::with_error(
@@ -401,7 +418,15 @@ impl Application for TestownikApp {
     }
     
     fn subscription(&self) -> Subscription<Self::Message> {
-        event::listen().map(|event| {
+        // Animation frames only while the fire is visible or fading out
+        let fire = match &self.screen {
+            Screen::Quiz(state) if state.fire.is_animating() => {
+                iced::time::every(std::time::Duration::from_millis(33)).map(Message::FireTick)
+            }
+            _ => Subscription::none(),
+        };
+
+        let keys = event::listen().map(|event| {
             if let Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) = event {
                 match key.as_ref() {
                     keyboard::Key::Character("1") => Message::SelectAnswerByNumber(0),
@@ -420,7 +445,9 @@ impl Application for TestownikApp {
             } else {
                 Message::None
             }
-        })
+        });
+
+        Subscription::batch([keys, fire])
     }
 }
 
@@ -442,6 +469,7 @@ impl TestownikApp {
     fn submit_answer(&mut self) {
         if let Screen::Quiz(ref mut state) = self.screen {
             state.submit_answer();
+            state.sync_fire(&self.settings);
             let _ = self.storage.save_session(&state.session);
         }
     }

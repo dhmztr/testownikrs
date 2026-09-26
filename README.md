@@ -39,6 +39,11 @@ Testownik-rs is a native cross-platform quiz application with advanced learning 
   2× and 3× the threshold, the best streak is saved per session and shown in
   the session list and on the completion screen. Toggle it and change the
   threshold in the main menu settings panel ("Edytuj").
+- ✅ **Burning screen**: during a hot streak animated flames rise from the
+  bottom of the quiz screen, behind the cards and buttons. The longer the
+  streak, the higher the fire (up to half the window) and the more it shifts
+  from orange to deep red, with more embers; it fades out when the streak
+  breaks. Can be turned off separately ("Płonący ekran").
 
 ## Installation
 

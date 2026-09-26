@@ -54,6 +54,17 @@ impl Colors {
     pub const TEXT_ON_PRIMARY: Color = Color::from_rgba(1.0, 1.0, 1.0, 0.7); // Semi-transparent white for subtitles on primary buttons
 }
 
+/// Blends a translucent tint over the window background into an opaque
+/// color, so panels stay readable when the hot streak fire burns behind them
+pub fn opaque_over_bg(tint: Color, is_dark: bool) -> Color {
+    let bg = if is_dark { Colors::DARK_BG } else { Colors::LIGHT_BG };
+    Color::from_rgb(
+        bg.r + (tint.r - bg.r) * tint.a,
+        bg.g + (tint.g - bg.g) * tint.a,
+        bg.b + (tint.b - bg.b) * tint.a,
+    )
+}
+
 /// Style for a modern card container
 pub fn card_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
@@ -100,10 +111,10 @@ pub fn surface_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appea
 }
 
 /// Style for success feedback
-pub fn success_container_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
+pub fn success_container_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
         container::Appearance {
-            background: Some(Background::Color(Colors::SUCCESS_LIGHT)),
+            background: Some(Background::Color(opaque_over_bg(Colors::SUCCESS_LIGHT, is_dark))),
             text_color: Some(Colors::SUCCESS),
             border: Border {
                 color: Colors::SUCCESS,
@@ -116,10 +127,10 @@ pub fn success_container_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> conta
 }
 
 /// Style for error feedback
-pub fn error_container_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
+pub fn error_container_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
         container::Appearance {
-            background: Some(Background::Color(Colors::ERROR_LIGHT)),
+            background: Some(Background::Color(opaque_over_bg(Colors::ERROR_LIGHT, is_dark))),
             text_color: Some(Colors::ERROR),
             border: Border {
                 color: Colors::ERROR,
@@ -136,9 +147,9 @@ pub fn answer_option_style(is_dark: bool, is_selected: bool) -> impl Fn(&iced::T
     move |_theme: &iced::Theme| {
         let bg_color = if is_selected {
             if is_dark {
-                Color::from_rgba(0.29, 0.47, 0.86, 0.2)
+                opaque_over_bg(Color::from_rgba(0.29, 0.47, 0.86, 0.2), is_dark)
             } else {
-                Color::from_rgba(0.29, 0.47, 0.86, 0.1)
+                opaque_over_bg(Color::from_rgba(0.29, 0.47, 0.86, 0.1), is_dark)
             }
         } else {
             if is_dark { Colors::DARK_CARD } else { Colors::LIGHT_CARD }
@@ -163,10 +174,10 @@ pub fn answer_option_style(is_dark: bool, is_selected: bool) -> impl Fn(&iced::T
 }
 
 /// Style for correct answer highlighting
-pub fn correct_answer_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
+pub fn correct_answer_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
         container::Appearance {
-            background: Some(Background::Color(Colors::SUCCESS_LIGHT)),
+            background: Some(Background::Color(opaque_over_bg(Colors::SUCCESS_LIGHT, is_dark))),
             border: Border {
                 color: Colors::SUCCESS,
                 width: 2.0,
@@ -178,10 +189,10 @@ pub fn correct_answer_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> containe
 }
 
 /// Style for incorrect answer highlighting
-pub fn incorrect_answer_style(_is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
+pub fn incorrect_answer_style(is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
         container::Appearance {
-            background: Some(Background::Color(Colors::ERROR_LIGHT)),
+            background: Some(Background::Color(opaque_over_bg(Colors::ERROR_LIGHT, is_dark))),
             border: Border {
                 color: Colors::ERROR,
                 width: 2.0,
@@ -330,12 +341,12 @@ pub fn hot_streak_color(level: u32) -> Color {
 }
 
 /// Badge / banner style for an active hot streak
-pub fn hot_streak_style(level: u32) -> impl Fn(&iced::Theme) -> container::Appearance {
+pub fn hot_streak_style(level: u32, is_dark: bool) -> impl Fn(&iced::Theme) -> container::Appearance {
     move |_theme: &iced::Theme| {
         let accent = hot_streak_color(level);
         let alpha = 0.10 + 0.05 * level.min(3) as f32;
         container::Appearance {
-            background: Some(Background::Color(Color { a: alpha, ..accent })),
+            background: Some(Background::Color(opaque_over_bg(Color { a: alpha, ..accent }, is_dark))),
             text_color: Some(accent),
             border: Border {
                 color: accent,
